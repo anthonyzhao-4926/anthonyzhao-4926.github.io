@@ -74,11 +74,22 @@ defaults:
       layout: post
       comments: false
 
-# 插件列表（与 Gemfile 保持一致，均在 GitHub Pages 白名单内）
+# 插件列表（与 Gemfile 保持一致）
 plugins:
   - jekyll-remote-theme
+  - jekyll-archives
+  - jekyll-include-cache
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-seo-tag
-  - jekyll-feed
   - jekyll-redirect-from
+
+# 分类 / 标签归档页（由 jekyll-archives 生成）
+jekyll-archives:
+  enabled: [categories, tags]
+  layouts:
+    category: category
+    tag: tag
+  permalinks:
+    tag: /tags/:name/
+    category: /categories/:name/

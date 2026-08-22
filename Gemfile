@@ -6,10 +6,11 @@ gem "jekyll", "~> 4.3"
 
 group :jekyll_plugins do
   gem "jekyll-remote-theme", "~> 0.4"
+  gem "jekyll-archives", "~> 2.2" # Chirpy 主题依赖（分类/标签归档页）
+  gem "jekyll-include-cache", "~> 0.2" # Chirpy 主题依赖（include_cached 标签）
   gem "jekyll-paginate", "~> 1.1"
   gem "jekyll-sitemap", "~> 1.4"
   gem "jekyll-seo-tag", "~> 2.8"
-  gem "jekyll-feed", "~> 0.17"
   gem "jekyll-redirect-from", "~> 0.16"
 end
 
