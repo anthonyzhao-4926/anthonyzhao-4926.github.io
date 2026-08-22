@@ -1,0 +1,84 @@
+# ==========================================================
+# Jekyll + Chirpy 主题核心配置
+# ==========================================================
+
+# 主题：GitHub Pages 部署使用远程主题模式（官方 workflow 支持）
+remote_theme: cotes2020/jekyll-theme-chirpy
+# 若本地改用 Gem 模式，可换成： theme: jekyll-theme-chirpy（二选一，勿同时写）
+
+# 站点语言与时区
+lang: zh-CN
+timezone: Asia/Shanghai
+
+# 站点信息
+title: zhaoxin 的博客
+tagline: 记录与分享
+description: >-
+  zhaoxin 的个人博客，基于 Jekyll + Chirpy 主题构建，
+  记录技术学习与生活随笔。
+url: "https://blog.zhaoxin.website"   # 与 CNAME 文件保持一致
+baseurl: ""                            # 项目站点部署（子路径）时才需要填写
+
+# GitHub 账号
+github:
+  username: anthonyzhao-4926
+
+# 社交信息（会显示在侧边栏）
+social:
+  name: zhaoxin
+  email: ""                            # 填写邮箱后侧边栏会显示邮件图标
+  links:
+    - https://github.com/anthonyzhao-4926
+
+# 主题外观：light / dark（页面内仍可手动切换）
+theme_mode: light
+
+# 文章右侧目录（TOC）
+toc: true
+
+# 评论功能（可选，后续可开启 giscus / utterances / disqus）
+comments:
+  active: false
+
+# 首页分页：每页展示的文章数
+paginate: 10
+
+# 代码高亮
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+
+# _tabs 顶层页面集合（关于 / 归档 / 分类 / 标签）
+collections:
+  tabs:
+    output: true
+    sort_by: order
+
+# 文章默认值
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      comments: true
+      toc: true
+      permalink: /posts/:title/
+  - scope:
+      path: _drafts
+      type: drafts
+    values:
+      layout: post
+      comments: false
+
+# 插件列表（与 Gemfile 保持一致，均在 GitHub Pages 白名单内）
+plugins:
+  - jekyll-remote-theme
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-feed
+  - jekyll-redirect-from

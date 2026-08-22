@@ -1,0 +1,3 @@
+# 侧边栏联系方式（按需增删，type 支持 github / twitter / email / rss 等）
+- type: github
+  url: "https://github.com/anthonyzhao-4926"

@@ -1,0 +1,13 @@
+# Jekyll 构建产物
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# 依赖
+vendor/
+.bundle/
+
+# 系统文件
+.DS_Store
+*.log
