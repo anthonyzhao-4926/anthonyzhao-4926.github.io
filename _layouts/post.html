@@ -5,10 +5,12 @@ layout: default
     <header class="post-header">
         <h1 class="post-title">{{ page.title }}</h1>
         <p class="post-meta">
-            <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>
+            <time datetime="{{ page.date | date: " %Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>
             {% if page.column %}<a class="pill" href="{{ '/columns/' | relative_url }}">{{ page.column }}</a>{% endif %}
-            {% for category in page.categories %}<a class="pill" href="{{ '/categories/' | relative_url }}{{ category | slugify }}/">{{ category }}</a>{% endfor %}
-            {% for tag in page.tags %}<a class="pill" href="{{ '/tags/' | relative_url }}{{ tag | slugify }}/">{{ tag }}</a>{% endfor %}
+            {% for category in page.categories %}<a class="pill"
+                href="{{ '/categories/' | relative_url }}{{ category | slugify }}/">{{ category }}</a>{% endfor %}
+            {% for tag in page.tags %}<a class="pill" href="{{ '/tags/' | relative_url }}{{ tag | slugify }}/">{{ tag
+                }}</a>{% endfor %}
         </p>
     </header>
     <div class="post-content">

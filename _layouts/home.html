@@ -4,7 +4,8 @@ layout: default
 <div class="post-list">
     {% for post in paginator.posts %}
     <article class="post-item">
-        <time class="post-item-date" datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+        <time class="post-item-date" datetime="{{ post.date | date: " %Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d"
+            }}</time>
         <div class="post-item-main">
             <h2 class="post-item-title">
                 <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
