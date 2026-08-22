@@ -2,7 +2,7 @@
 layout: page
 title: 关于
 permalink: /about/
-order: 4
+order: 5
 ---
 
 你好，我是 **zhaoxin**，这里是我的个人博客。

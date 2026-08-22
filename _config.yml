@@ -1,10 +1,6 @@
 # ==========================================================
-# Jekyll + Chirpy 主题核心配置
+# Jekyll 自研主题核心配置（不依赖任何第三方主题）
 # ==========================================================
-
-# 主题：GitHub Pages 部署使用远程主题模式（官方 workflow 支持）
-remote_theme: cotes2020/jekyll-theme-chirpy
-# 若本地改用 Gem 模式，可换成： theme: jekyll-theme-chirpy（二选一，勿同时写）
 
 # 站点语言与时区
 lang: zh-CN
@@ -14,7 +10,7 @@ timezone: Asia/Shanghai
 title: zhaoxin 的博客
 tagline: 记录与分享
 description: >-
-  zhaoxin 的个人博客，基于 Jekyll + Chirpy 主题构建，
+  zhaoxin 的个人博客，基于 Jekyll 自研主题构建，
   记录技术学习与生活随笔。
 url: "https://blog.zhaoxin.website"   # 与 CNAME 文件保持一致
 baseurl: ""                            # 项目站点部署（子路径）时才需要填写
@@ -30,11 +26,10 @@ social:
   links:
     - https://github.com/anthonyzhao-4926
 
-# 主题外观：light / dark（页面内仍可手动切换）
-theme_mode: light
+# 主题外观：深浅色切换由 assets/js/theme.js 控制（不写死主题模式）
 
-# 文章右侧目录（TOC）
-toc: true
+# 文章右侧目录（TOC）：自研主题暂未提供
+# toc: true
 
 # 评论功能（可选，后续可开启 giscus / utterances / disqus）
 comments:
@@ -51,21 +46,29 @@ kramdown:
     span:
       line_numbers: false
 
-# _tabs 顶层页面集合（关于 / 归档 / 分类 / 标签）
+# _tabs 顶层页面集合 + _columns 专栏集合
 collections:
   tabs:
     output: true
     sort_by: order
+  # 专栏集合：_columns/ 下的每个文件 = 一个专栏
+  columns:
+    output: true
+    sort_by: order
 
 # 文章默认值
+# 注意：无第三方主题时，所有页面必须显式指定 layout（或由 defaults 兜底）
 defaults:
+  - scope:
+      path: ""
+      type: tabs
+    values:
+      layout: page
   - scope:
       path: ""
       type: posts
     values:
       layout: post
-      comments: true
-      toc: true
       permalink: /posts/:title/
   - scope:
       path: _drafts
@@ -73,16 +76,19 @@ defaults:
     values:
       layout: post
       comments: false
+  - scope:
+      path: ""
+      type: columns
+    values:
+      layout: column
+      permalink: /columns/:title/
 
 # 插件列表（与 Gemfile 保持一致）
 plugins:
-  - jekyll-remote-theme
   - jekyll-archives
-  - jekyll-include-cache
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-seo-tag
-  - jekyll-redirect-from
 
 # 分类 / 标签归档页（由 jekyll-archives 生成）
 jekyll-archives:
