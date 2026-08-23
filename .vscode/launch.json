@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Jekyll Serve",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bundle exec jekyll serve --livereload",
+      "cwd": "${workspaceFolder}",
+      "autoReload": true
+    },
+    {
+      "name": "调试前端 JS (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:4000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": false
+    },
+    {
+      "name": "调试前端 JS (Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://127.0.0.1:4000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "启动博客并调试 (Chrome)",
+      "configurations": ["Jekyll Serve", "调试前端 JS (Chrome)"],
+      "stopAll": true
+    }
+  ]
+}
