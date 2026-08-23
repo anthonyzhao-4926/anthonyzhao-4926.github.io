@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-style="celadon">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>博客 UI 预览 · 天青青瓷</title>
+<style>
+/* ==========================================================
+   天青 · 青瓷 —— 文人清趣风（从零设计，独立预览）
+   配色取自天青釉：天青色等烟雨，清爽而沉静
+   ========================================================== */
+
+/* ---------- 主题变量 ---------- */
+:root {
+    --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+[data-theme="light"] {
+    --bg: #f4f9f6;            /* 纸：冷调青白，天青釉底 */
+    --text: #22312d;          /* 墨：深绿近黑 */
+    --muted: #7e918b;         /* 黛：灰青 */
+    --accent: #3e8e7c;        /* 青：天青主色 */
+    --accent-soft: rgba(62, 142, 124, 0.10);
+    --cinnabar: #d97757;      /* 朱：全站唯一暖色，仅一处 */
+    --line: #dce9e4;          /* 线：青瓷发丝线 */
+    --line-strong: #c4d8d0;
+    --code-bg: #eaf3ef;
+    --card: #ffffff;
+    --header-bg: rgba(244, 249, 246, 0.82);
+    --shadow: 0 1px 2px rgba(34, 49, 45, 0.04);
+}
+
+[data-theme="dark"] {
+    --bg: #141f1b;
+    --text: #e6efe9;
+    --muted: #97aba3;
+    --accent: #6fc3ae;
+    --accent-soft: rgba(111, 195, 174, 0.12);
+    --cinnabar: #e0926f;
+    --line: #2a3b35;
+    --line-strong: #3a4f47;
+    --code-bg: #1a2722;
+    --card: #18282e;
+    --header-bg: rgba(20, 31, 27, 0.82);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================
+   朱砂 · 白纸风格 —— 纯白纸 + 墨色大字 + 一点朱砂
+   ========================================================== */
+
+[data-style="paper"] {
+    --font-display: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+
+[data-style="paper"][data-theme="light"] {
+    --bg: #fcfcfb;
+    --text: #1a1a1a;
+    --muted: #8a8a85;
+    --accent: #c8452e;
+    --accent-soft: rgba(200, 69, 46, 0.08);
+    --cinnabar: #c8452e;
+    --line: #e6e6e2;
+    --line-strong: #d0d0cb;
+    --code-bg: #f4f4f1;
+    --header-bg: rgba(252, 252, 251, 0.85);
+    --shadow: 0 1px 2px rgba(26, 26, 26, 0.05);
+}
+
+[data-style="paper"][data-theme="dark"] {
+    --bg: #161616;
+    --text: #ecece9;
+    --muted: #9b9b95;
+    --accent: #e05a3e;
+    --accent-soft: rgba(224, 90, 62, 0.12);
+    --cinnabar: #e05a3e;
+    --line: #2a2a2a;
+    --line-strong: #3a3a36;
+    --code-bg: #1f1f1f;
+    --header-bg: rgba(22, 22, 22, 0.85);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* 纸感：去掉彩色底纹，纯白 */
+[data-style="paper"] body { background-image: none; }
+[data-style="paper"] ::selection { background: var(--cinnabar); color: #fff; }
+
+/* 品牌点改为方形朱印 */
+[data-style="paper"] .site-title .dot {
+    border-radius: 1px;
+    width: 10px;
+    height: 10px;
+    box-shadow: none;
+}
+
+/* 首页列表：去掉竖排书签，右侧日期 + 大标题 */
+[data-style="paper"] .post-item {
+    grid-template-columns: 1fr;
+    position: relative;
+    gap: 4px;
+    padding: 34px 0;
+}
+
+[data-style="paper"] .post-gutter { display: none; }
+
+[data-style="paper"] .post-date-inline {
+    display: block;
+    position: absolute;
+    top: 38px;
+    right: 0;
+    font-size: 12px;
+    letter-spacing: .14em;
+    color: var(--muted);
+}
+
+[data-style="paper"] .post-flag .flag-dot { background: var(--muted); }
+
+[data-style="paper"] .post-title { font-size: 23px; }
+[data-style="paper"] .post-title a { background-image: none; }
+
+[data-style="paper"] .post-item:hover .post-title a,
+[data-style="paper"] .post-title a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 5px;
+    text-decoration-thickness: 2px;
+}
+
+/* 题头：另一套文案 + 朱砂句号签名 */
+.masthead-paper { display: none; }
+[data-style="paper"] .masthead-celadon { display: none; }
+[data-style="paper"] .masthead-paper { display: block; }
+
+[data-style="paper"] .masthead-title,
+[data-style="paper"] .post-title,
+[data-style="paper"] .article-title,
+[data-style="paper"] .article-body h2 {
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+[data-style="paper"] .paper-stop { color: var(--cinnabar); }
+
+/* 文章页：去掉首字下沉，直角收边 */
+[data-style="paper"] .article-body > p:first-child::first-letter {
+    float: none;
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0;
+    color: inherit;
+}
+
+[data-style="paper"] .article-body blockquote { border-radius: 0; }
+[data-style="paper"] .article-body pre { border-radius: 2px; }
+[data-style="paper"] .article-body code { border-radius: 2px; }
+
+/* ==========================================================
+   清水 · 青蓝风格 —— 现代卡片式，水波般的清爽
+   ========================================================== */
+
+[data-style="aqua"] {
+    --font-display: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+
+[data-style="aqua"][data-theme="light"] {
+    --bg: #f6fafc;
+    --text: #1f2b30;
+    --muted: #7b8c93;
+    --accent: #2e8fa3;
+    --accent-soft: rgba(46, 143, 163, 0.10);
+    --cinnabar: #2e8fa3;
+    --line: #dfe9ee;
+    --line-strong: #c6d8df;
+    --code-bg: #eef5f8;
+    --card: #ffffff;
+    --header-bg: rgba(246, 250, 252, 0.85);
+    --shadow: 0 2px 12px rgba(31, 43, 48, 0.06);
+}
+
+[data-style="aqua"][data-theme="dark"] {
+    --bg: #101c21;
+    --text: #e4eef2;
+    --muted: #8ca1aa;
+    --accent: #4fb2c8;
+    --accent-soft: rgba(79, 178, 200, 0.12);
+    --cinnabar: #4fb2c8;
+    --line: #24343b;
+    --line-strong: #33505a;
+    --code-bg: #16242a;
+    --card: #18282e;
+    --header-bg: rgba(16, 28, 33, 0.85);
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-style="aqua"] body {
+    background-image: radial-gradient(1000px 400px at 50% -140px, rgba(46, 143, 163, 0.08), transparent 70%);
+}
+
+[data-style="aqua"] .site-title .dot {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* 题头：另一套文案 */
+.masthead-aqua { display: none; }
+[data-style="aqua"] .masthead-celadon,
+[data-style="aqua"] .masthead-paper { display: none; }
+[data-style="aqua"] .masthead-aqua { display: block; }
+
+[data-style="aqua"] .masthead-kicker {
+    display: inline-flex;
+    align-items: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 5px 14px;
+    border-radius: 999px;
+    letter-spacing: .18em;
+}
+
+[data-style="aqua"] .masthead-kicker::before { display: none; }
+
+[data-style="aqua"] .masthead-title,
+[data-style="aqua"] .post-title,
+[data-style="aqua"] .article-title,
+[data-style="aqua"] .article-body h2 {
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+/* 首页：双列圆角卡片 */
+[data-style="aqua"] .post-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    padding: 40px 0 0;
+}
+
+[data-style="aqua"] .post-item {
+    display: block;
+    position: relative;
+    padding: 24px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+[data-style="aqua"] .post-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 28px rgba(46, 143, 163, 0.12);
+}
+
+[data-style="aqua"] .post-item:last-child { border-bottom: 1px solid var(--line); }
+
+[data-style="aqua"] .post-gutter { display: none; }
+
+[data-style="aqua"] .post-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 14px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: .1em;
+}
+
+[data-style="aqua"] .post-flag .flag-dot { background: var(--accent); }
+
+[data-style="aqua"] .post-date-inline {
+    display: block;
+    position: absolute;
+    top: 26px;
+    right: 24px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: .1em;
+}
+
+[data-style="aqua"] .post-title { font-size: 19px; line-height: 1.5; margin: 0 0 8px; }
+[data-style="aqua"] .post-title a { background-image: none; }
+
+[data-style="aqua"] .post-item:hover .post-title a,
+[data-style="aqua"] .post-title a:hover { color: var(--accent); }
+
+[data-style="aqua"] .post-excerpt { font-size: 14px; line-height: 1.7; }
+
+/* 文章页微调 */
+[data-style="aqua"] .article-body > p:first-child::first-letter {
+    float: none;
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0;
+    color: inherit;
+}
+
+[data-style="aqua"] .article-body blockquote { border-radius: 0 12px 12px 0; }
+[data-style="aqua"] .article-body pre { border-radius: 12px; }
+[data-style="aqua"] .article-body code { border-radius: 6px; }
+
+/* ==========================================================
+   天青·水（结合版）—— 青瓷的文人气质与列表 + 清水的水青配色
+   主题色取青瓷绿与水波蓝之间的「湖水青」
+   ========================================================== */
+
+[data-style="mix"] {
+    --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+}
+
+[data-style="mix"][data-theme="light"] {
+    --bg: #f4f9f9;
+    --text: #1f2c2b;
+    --muted: #7c8f8c;
+    --accent: #379a90;
+    --accent-soft: rgba(55, 154, 144, 0.10);
+    --cinnabar: #e0825a;
+    --line: #dde9e7;
+    --line-strong: #c6d9d5;
+    --code-bg: #ecf5f3;
+    --card: #ffffff;
+    --header-bg: rgba(244, 249, 249, 0.82);
+    --shadow: 0 2px 12px rgba(31, 44, 43, 0.06);
+}
+
+[data-style="mix"][data-theme="dark"] {
+    --bg: #131e1c;
+    --text: #e6efec;
+    --muted: #93a6a2;
+    --accent: #57b4a6;
+    --accent-soft: rgba(87, 180, 166, 0.12);
+    --cinnabar: #e8926f;
+    --line: #26342f;
+    --line-strong: #345049;
+    --code-bg: #17231f;
+    --card: #1b2a26;
+    --header-bg: rgba(19, 30, 28, 0.82);
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-style="mix"] body {
+    background-image: radial-gradient(1100px 420px at 50% -120px, rgba(55, 154, 144, 0.08), transparent 70%);
+}
+
+/* 品牌点：保留青瓷的朱砂暖点 */
+[data-style="mix"] .site-title .dot {
+    background: var(--cinnabar);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* 题头 */
+.masthead-mix { display: none; }
+[data-style="mix"] .masthead-celadon,
+[data-style="mix"] .masthead-paper,
+[data-style="mix"] .masthead-aqua { display: none; }
+[data-style="mix"] .masthead-mix { display: block; }
+
+/* 首页：沿用青瓷的清爽列表（无卡片）—— 竖排日期书签 + 发丝线分隔 */
+[data-style="mix"] .post-date-inline { display: none; }
+
+/* ---------- 基础 ---------- */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    background-image: radial-gradient(1100px 420px at 50% -120px, rgba(62, 142, 124, 0.07), transparent 70%);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.9;
+    transition: background-color .3s ease, color .3s ease;
+    padding-bottom: 96px; /* 给底部预览条让位 */
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+a { color: var(--accent); text-decoration: none; }
+
+img { max-width: 100%; }
+
+.container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+.mono { font-family: var(--font-mono); }
+
+.is-hidden { display: none; }
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* ---------- 顶部导航 ---------- */
+.site-header {
+    border-bottom: 1px solid var(--line);
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 64px;
+}
+
+.site-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text);
+    white-space: nowrap;
+    transition: color .2s;
+}
+
+.site-title:hover { color: var(--accent); }
+
+.site-title .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--cinnabar);   /* 全站唯一的朱色 */
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.site-nav {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+    justify-content: flex-end;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.site-nav::-webkit-scrollbar { display: none; }
+
+.site-nav a {
+    position: relative;
+    color: var(--muted);
+    font-size: 14.5px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: color .2s;
+}
+
+.site-nav a::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 2px;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .25s ease;
+}
+
+.site-nav a:hover { color: var(--text); }
+
+.site-nav a.active { color: var(--accent); }
+
+.site-nav a.active::after { transform: scaleX(1); }
+
+/* 顶栏深浅色开关 */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    background: var(--card, transparent);
+    color: var(--muted);
+    border-radius: 50%;
+    font-size: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color .2s, border-color .2s, transform .2s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: rotate(15deg);
+}
+
+/* ---------- 首页题头 ---------- */
+.masthead {
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+}
+
+.masthead-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    font-size: 12px;
+    letter-spacing: .32em;
+    color: var(--accent);
+    text-transform: uppercase;
+}
+
+.masthead-kicker::before {
+    content: "";
+    width: 26px;
+    height: 1px;
+    background: var(--accent);
+}
+
+.masthead-title {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-size: clamp(30px, 6vw, 40px);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: .02em;
+}
+
+.masthead-sub {
+    margin: 0 0 22px;
+    font-size: 16.5px;
+    color: var(--muted);
+    max-width: 34em;
+}
+
+.masthead-meta {
+    margin: 0;
+    font-size: 12.5px;
+    letter-spacing: .06em;
+    color: var(--muted);
+}
+
+.masthead-meta em { font-style: normal; color: var(--accent); }
+
+/* ---------- 首页文章列表 ---------- */
+.post-list { padding: 8px 0 0; }
+
+.post-item {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    gap: 20px;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.post-item:last-child { border-bottom: none; }
+
+.post-gutter { position: relative; }
+
+/* 签名：竖排日期书签 */
+.vdate {
+    display: inline-block;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: .22em;
+    color: var(--muted);
+    padding: 2px 0 2px 2px;
+    border-left: 1px solid var(--line-strong);
+    margin-left: 10px;
+    transition: color .25s ease, border-color .25s ease;
+}
+
+.post-item:hover .vdate {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.post-body { min-width: 0; }
+
+.post-flag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+    font-size: 11.5px;
+    letter-spacing: .18em;
+    color: var(--muted);
+}
+
+.post-flag .flag-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+}
+
+/* 行内日期（朱砂风格使用，青瓷下默认隐藏） */
+.post-date-inline { display: none; }
+
+.post-title {
+    margin: 0 0 8px;
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: .01em;
+}
+
+.post-title a {
+    color: var(--text);
+    transition: color .2s;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat;
+    background-size: 0 1px;
+    background-position: 0 100%;
+    transition: color .2s, background-size .25s ease;
+}
+
+.post-item:hover .post-title a,
+.post-title a:hover {
+    color: var(--accent);
+    background-size: 100% 1px;
+}
+
+.post-excerpt {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--muted);
+}
+
+/* ---------- 文章页 ---------- */
+.article { padding: 64px 0 0; }
+
+.article-head {
+    margin-bottom: 44px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+}
+
+.article-flag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    font-size: 12px;
+    letter-spacing: .18em;
+    color: var(--accent);
+}
+
+.article-flag .flag-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+}
+
+.article-title {
+    margin: 0 0 18px;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 4.5vw, 34px);
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: .01em;
+}
+
+.article-meta {
+    margin: 0;
+    font-size: 12.5px;
+    letter-spacing: .04em;
+    color: var(--muted);
+}
+
+.article-meta a { color: var(--muted); }
+.article-meta a:hover { color: var(--accent); }
+.article-meta .sep { margin: 0 8px; color: var(--line-strong); }
+
+/* ---------- 正文排版 ---------- */
+.article-body {
+    font-size: 16px;
+    line-height: 1.95;
+}
+
+/* 首字下沉：宋体「欢」字起笔 */
+.article-body > p:first-child {
+    font-size: 16.5px;
+}
+
+.article-body > p:first-child::first-letter {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 3.1em;
+    line-height: .9;
+    float: left;
+    margin: .08em .14em 0 0;
+    color: var(--accent);
+}
+
+.article-body h2 {
+    margin: 2.4em 0 .9em;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    padding-bottom: .5em;
+    border-bottom: 1px solid var(--line);
+}
+
+.article-body h3 {
+    margin: 1.9em 0 .6em;
+    font-size: 16.5px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.article-body p { margin: 0 0 1.3em; }
+
+.article-body ul,
+.article-body ol {
+    padding-left: 1.4em;
+    margin: 0 0 1.4em;
+}
+
+.article-body li { margin: .35em 0; }
+.article-body li::marker { color: var(--accent); }
+
+.article-body blockquote {
+    margin: 1.8em 0;
+    padding: 14px 22px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 8px 8px 0;
+    color: var(--text);
+}
+
+.article-body blockquote p { margin: 0; }
+
+.article-body code {
+    font-family: var(--font-mono);
+    font-size: .86em;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: .14em .4em;
+}
+
+.article-body pre {
+    margin: 1.8em 0;
+    padding: 20px 22px;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.7;
+    box-shadow: var(--shadow);
+}
+
+.article-body pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13.5px;
+}
+
+.article-body hr {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 2.6em 0;
+}
+
+.article-body a {
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat;
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    padding-bottom: 1px;
+}
+
+.article-body a:hover { color: var(--accent); }
+
+/* ---------- 页脚 ---------- */
+.site-footer {
+    margin-top: 72px;
+    padding: 28px 0;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: var(--muted);
+}
+
+.site-footer .footer-dot { color: var(--cinnabar); }
+
+/* ---------- 底部预览控制条 ---------- */
+.preview-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: rgba(28, 41, 37, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    font-family: var(--font-body);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.preview-bar::-webkit-scrollbar { display: none; }
+
+.preview-bar .label {
+    color: rgba(255, 255, 255, 0.55);
+    padding: 0 6px;
+    font-size: 11px;
+    letter-spacing: .1em;
+}
+
+.preview-bar button {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+}
+
+.preview-bar button:hover { background: rgba(255, 255, 255, 0.12); }
+
+.preview-bar button.active {
+    background: #6fc3ae;
+    color: #14201c;
+    font-weight: 600;
+}
+
+.preview-bar .sep {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.18);
+    margin: 0 4px;
+}
+
+/* ---------- 动画 ---------- */
+.view { animation: fade-up .5s ease both; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .view { animation: none; }
+    * { transition: none !important; }
+}
+
+/* ---------- 移动端 ---------- */
+@media (max-width: 720px) {
+    .container { padding: 0 20px; }
+
+    .header-inner {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 12px 0;
+        gap: 6px 16px;
+    }
+
+    .site-nav { order: 3; width: 100%; justify-content: flex-start; }
+
+    .masthead { padding: 48px 0 32px; }
+    .masthead-sub { font-size: 15px; }
+
+    .post-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 24px 0;
+    }
+
+    /* 竖排日期在移动端改为横排小字 */
+    .vdate {
+        writing-mode: horizontal-tb;
+        letter-spacing: .14em;
+        border-left: none;
+        border-top: 1px solid var(--line-strong);
+        padding: 6px 0 0;
+        margin: 0 0 2px;
+    }
+
+    .post-title { font-size: 19px; }
+
+    .article { padding: 44px 0 0; }
+    .article-title { font-size: 24px; }
+    .article-body { font-size: 15.5px; line-height: 1.9; }
+
+    .preview-bar { bottom: 10px; max-width: 94vw; }
+
+    /* 朱砂风格移动端：日期回归行内 */
+    [data-style="paper"] .post-date-inline {
+        position: static;
+        top: auto;
+        right: auto;
+        margin-bottom: 4px;
+    }
+    [data-style="paper"] .post-title { font-size: 21px; }
+
+    /* 清水风格移动端：卡片单列，日期回归行内 */
+    [data-style="aqua"] .post-list { grid-template-columns: 1fr; gap: 14px; }
+    [data-style="aqua"] .post-date-inline {
+        position: static;
+        top: auto;
+        right: auto;
+        margin-bottom: 12px;
+    }
+
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 底部预览控制条 ===== -->
+<div class="preview-bar" role="toolbar" aria-label="预览切换">
+    <span class="label">风格</span>
+    <button data-style-btn="celadon" class="active">青瓷</button>
+    <button data-style-btn="paper">朱砂</button>
+    <button data-style-btn="aqua">清水</button>
+    <button data-style-btn="mix">结合</button>
+</div>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="site-header">
+    <div class="container header-inner">
+        <a class="site-title" href="#"><span class="dot"></span>zhaoxin 的博客</a>
+        <nav class="site-nav">
+            <a href="#">专栏</a>
+            <a href="#">标签</a>
+            <a href="#">关于</a>
+        </nav>
+        <button id="theme-toggle" class="theme-toggle" aria-label="切换深浅色" title="切换深浅色">🌙</button>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- ===== 首页视图 ===== -->
+    <section class="view" id="view-home">
+
+        <header class="masthead masthead-celadon">
+            <p class="masthead-kicker">记录与分享</p>
+            <h1 class="masthead-title">天青色的时光，<br>安静地落进字里行间。</h1>
+            <p class="masthead-sub">这里是 zhaoxin 的博客。技术学习的笔记，生活随手的感悟，都收在这片青色的安静里。</p>
+            <p class="masthead-meta mono">乙巳年 · <em>4</em> 篇文章 · <em>2</em> 个专栏 · 生活在上海</p>
+        </header>
+
+        <header class="masthead masthead-paper">
+            <p class="masthead-kicker">INDEX · 索引</p>
+            <h1 class="masthead-title">记录与分享<span class="paper-stop">。</span></h1>
+            <p class="masthead-sub">zhaoxin 的博客。技术学习的笔记与生活随笔，白纸黑字，直来直去。</p>
+            <p class="masthead-meta mono">2026 · 4 篇文章 · 2 个专栏 · 上海</p>
+        </header>
+
+        <header class="masthead masthead-aqua">
+            <p class="masthead-kicker mono">FRESH · 清爽</p>
+            <h1 class="masthead-title">清爽的博客，<br>从这里开始。</h1>
+            <p class="masthead-sub">zhaoxin 的博客。技术笔记与生活随笔，排版干净，阅读轻松，像一杯冰水。</p>
+            <p class="masthead-meta mono">2026 · 4 篇文章 · 2 个专栏 · 上海</p>
+        </header>
+
+        <header class="masthead masthead-mix">
+            <p class="masthead-kicker">记录与分享</p>
+            <h1 class="masthead-title">天青色的时光，<br>安静地落进字里行间。</h1>
+            <p class="masthead-sub">zhaoxin 的博客。宋体的书卷气，配一块湖水青的留白；记录与分享，本该如此干净。</p>
+            <p class="masthead-meta mono">2026 · 4 篇文章 · 2 个专栏 · 上海</p>
+        </header>
+
+        <div class="post-list">
+            <article class="post-item">
+                <div class="post-gutter">
+                    <span class="vdate">08·22</span>
+                </div>
+                <div class="post-body">
+                    <p class="post-flag mono"><span class="flag-dot"></span>生活随笔</p>
+                    <p class="post-date-inline mono">2026-08-22</p>
+                    <h2 class="post-title"><a href="#">你好，世界 👋</a></h2>
+                    <p class="post-excerpt">欢迎来到我的博客！这是第一篇文章，用来验证整个博客流程。写下文字，让时间有迹可循。</p>
+                </div>
+            </article>
+
+            <article class="post-item">
+                <div class="post-gutter">
+                    <span class="vdate">08·18</span>
+                </div>
+                <div class="post-body">
+                    <p class="post-flag mono"><span class="flag-dot"></span>技术学习</p>
+                    <p class="post-date-inline mono">2026-08-18</p>
+                    <h2 class="post-title"><a href="#">Jekyll 深浅色切换踩坑记录</a></h2>
+                    <p class="post-excerpt">data-theme 初始化、避免首屏闪烁、localStorage 与 prefers-color-scheme 的取舍，一条条记下来。</p>
+                </div>
+            </article>
+
+            <article class="post-item">
+                <div class="post-gutter">
+                    <span class="vdate">08·10</span>
+                </div>
+                <div class="post-body">
+                    <p class="post-flag mono"><span class="flag-dot"></span>生活随笔</p>
+                    <p class="post-date-inline mono">2026-08-10</p>
+                    <h2 class="post-title"><a href="#">夏日傍晚的散步</a></h2>
+                    <p class="post-excerpt">傍晚七点，天还是亮的。沿着河边走一圈，看云、看水、看遛狗的人慢慢经过。</p>
+                </div>
+            </article>
+
+            <article class="post-item">
+                <div class="post-gutter">
+                    <span class="vdate">07·30</span>
+                </div>
+                <div class="post-body">
+                    <p class="post-flag mono"><span class="flag-dot"></span>生活随笔</p>
+                    <p class="post-date-inline mono">2026-07-30</p>
+                    <h2 class="post-title"><a href="#">写给十年后的自己</a></h2>
+                    <p class="post-excerpt">不知道十年后你在哪里，用什么语言写代码，还写不写博客。只希望你还保有写下来的习惯。</p>
+                </div>
+            </article>
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p class="mono">© 2026 zhaoxin · 天青<span class="footer-dot">·</span>主题预览</p>
+</footer>
+
+<script>
+(function () {
+    'use strict';
+
+    var root = document.documentElement;
+
+    /* 风格切换 */
+    var styleBtns = document.querySelectorAll('[data-style-btn]');
+    styleBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            styleBtns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            root.setAttribute('data-style', btn.dataset.styleBtn);
+        });
+    });
+
+    /* 深浅色切换（顶栏按钮） */
+    var themeBtn = document.getElementById('theme-toggle');
+    function renderIcon() {
+        var dark = root.getAttribute('data-theme') === 'dark';
+        themeBtn.textContent = dark ? '☀' : '🌙';
+    }
+    renderIcon();
+    themeBtn.addEventListener('click', function () {
+        root.setAttribute('data-theme',
+            root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+        renderIcon();
+    });
+})();
+</script>
+</body>
+</html>

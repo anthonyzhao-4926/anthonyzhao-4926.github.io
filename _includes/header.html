@@ -1,13 +1,17 @@
 <header class="site-header">
     <div class="container header-inner">
-        <a class="site-title" href="{{ '/' | relative_url }}"><span class="logo-dot"></span>{{ site.title }}</a>
+        <a class="site-title" href="{{ '/' | relative_url }}"><span class="dot"></span>{{ site.title }}</a>
         <nav class="site-nav">
-            <a href="{{ '/' | relative_url }}" {% if page.layout=='home' %} class="active" {% endif %}>首页</a>
+            <a href="{{ '/' | relative_url }}" {% if page.layout == 'home' %} class="active" {% endif %}>主页</a>
             {% for tab in site.tabs %}
-            <a href="{{ tab.url | relative_url }}" {% if tab.url==page.url %} class="active" {% endif %}>{{ tab.title
-                }}</a>
+            {% unless tab.nav == false %}
+            <a href="{{ tab.url | relative_url }}" {% if tab.url == page.url %} class="active" {% endif %}>{{ tab.title }}</a>
+            {% endunless %}
             {% endfor %}
         </nav>
-        <button id="theme-toggle" class="theme-toggle" aria-label="切换深浅色">🌙</button>
+        <button id="search-btn" class="search-btn" aria-label="搜索" title="搜索（⌘K）">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        <button id="theme-toggle" class="theme-toggle" aria-label="切换深浅色" title="切换深浅色"></button>
     </div>
 </header>

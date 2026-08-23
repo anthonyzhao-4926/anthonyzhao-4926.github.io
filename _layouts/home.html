@@ -1,17 +1,27 @@
 ---
 layout: default
 ---
+<header class="masthead">
+    <p class="masthead-kicker">{{ site.tagline }}</p>
+    <h1 class="masthead-title">天青色的时光，<br>安静地落进字里行间。</h1>
+    <p class="masthead-sub">{{ site.description }}</p>
+    <p class="masthead-meta mono">{{ site.time | date: "%Y" }} · {{ site.posts.size }} 篇文章 · {{ site.columns.size }} 个专栏</p>
+</header>
+
 <div class="post-list">
     {% for post in paginator.posts %}
+    {% if post.column %}{% assign flag = post.column %}{% else %}{% assign flag = "随笔" %}{% endif %}
     <article class="post-item">
-        <time class="post-item-date" datetime="{{ post.date | date: " %Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d"
-            }}</time>
-        <div class="post-item-main">
-            <h2 class="post-item-title">
+        <div class="post-gutter">
+            <span class="vdate">{{ post.date | date: "%m·%d" }}</span>
+        </div>
+        <div class="post-body">
+            <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}</p>
+            <h2 class="post-title">
                 <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
             </h2>
             {% if post.excerpt %}
-            <p class="post-item-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>
+            <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>
             {% endif %}
         </div>
     </article>
@@ -23,7 +33,7 @@ layout: default
     {% if paginator.previous_page %}
     <a href="{{ paginator.previous_page_path | relative_url }}">← 上一页</a>
     {% endif %}
-    <span class="muted">{{ paginator.page }} / {{ paginator.total_pages }}</span>
+    <span class="muted mono">{{ paginator.page }} / {{ paginator.total_pages }}</span>
     {% if paginator.next_page %}
     <a href="{{ paginator.next_page_path | relative_url }}">下一页 →</a>
     {% endif %}

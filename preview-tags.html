@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>标签列表页布局预览</title>
+<style>
+/* ============ 天青·水 变量 ============ */
+:root {
+    --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+[data-theme="light"] {
+    --bg:#f4f9f9; --text:#1f2c2b; --muted:#7c8f8c; --accent:#379a90;
+    --accent-soft:rgba(55,154,144,.10); --cinnabar:#e0825a; --line:#dde9e7;
+    --line-strong:#c6d9d5; --code-bg:#ecf5f3; --card:#fff;
+    --header-bg:rgba(244,249,249,.82); --shadow:0 1px 2px rgba(31,44,43,.05);
+}
+[data-theme="dark"] {
+    --bg:#131e1c; --text:#e6efec; --muted:#93a6a2; --accent:#57b4a6;
+    --accent-soft:rgba(87,180,166,.12); --cinnabar:#e8926f; --line:#26342f;
+    --line-strong:#345049; --code-bg:#17231f; --card:#1b2a26;
+    --header-bg:rgba(19,30,28,.82); --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+
+/* ============ 基础 ============ */
+* { box-sizing: border-box; }
+body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font-body); font-size: 16px; line-height: 1.85;
+    transition: background-color .3s, color .3s; padding-bottom: 70px;
+}
+::selection { background: var(--accent); color: #fff; }
+a { color: var(--accent); text-decoration: none; }
+.mono { font-family: var(--font-mono); }
+.muted { color: var(--muted); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.site-header {
+    border-bottom: 1px solid var(--line); background: var(--header-bg);
+    backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100;
+}
+.header-inner { display: flex; align-items: center; gap: 24px; height: 62px; max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+.site-title { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: .04em; }
+.site-title .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--cinnabar); box-shadow: 0 0 0 3px var(--accent-soft); }
+.site-nav { display: flex; gap: 2px; flex: 1; justify-content: flex-end; }
+.site-nav a { color: var(--muted); font-size: 14.5px; padding: 6px 12px; }
+.site-nav a.active { color: var(--accent); }
+.theme-toggle { width: 32px; height: 32px; border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+.page-wrap { max-width: 860px; margin: 0 auto; padding: 0 28px; }
+
+/* ============ 页头 ============ */
+.page-head { padding: 64px 0 40px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.page-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; font-size: 12px; letter-spacing: .32em; color: var(--accent); text-transform: uppercase; }
+.page-kicker::before { content: ""; width: 26px; height: 1px; background: var(--accent); }
+.page-title { margin: 0 0 12px; font-family: var(--font-display); font-size: clamp(28px, 5vw, 38px); font-weight: 600; line-height: 1.35; letter-spacing: .02em; }
+.page-sub { margin: 0 0 20px; font-size: 16px; color: var(--muted); max-width: 36em; }
+.page-meta { margin: 0; font-size: 12.5px; letter-spacing: .06em; color: var(--muted); }
+.page-meta em { font-style: normal; color: var(--accent); }
+
+/* ============ 变体 A · 权重云 ============ */
+.tag-cloud { padding: 40px 0 0; line-height: 2.3; }
+.tag-c {
+    display: inline-flex; align-items: baseline; gap: 6px;
+    margin: 4px 18px 4px 0;
+    font-family: var(--font-mono); color: var(--muted);
+    transition: color .2s;
+}
+.tag-c:hover { color: var(--accent); }
+.tag-c .c { font-size: .58em; color: var(--line-strong); }
+.tag-c.s1 { font-size: 15px; }
+.tag-c.s2 { font-size: 24px; color: var(--text); font-family: var(--font-display); }
+.tag-c.s2 .c { color: var(--accent); }
+
+/* ============ 变体 B · 索引清单 ============ */
+.tag-list { padding: 12px 0 0; }
+.tag-row {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 0 14px;
+    padding: 17px 4px; border-bottom: 1px solid var(--line);
+}
+.tag-row:last-child { border-bottom: none; }
+.tag-name { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--text); transition: color .2s; }
+.tag-row:hover .tag-name { color: var(--accent); }
+.tag-row .leader { border-bottom: 1px dotted var(--line-strong); transform: translateY(-4px); }
+.tag-count { font-size: 13px; letter-spacing: .08em; color: var(--muted); }
+
+/* ============ 变体 C · 字块矩阵 ============ */
+.tag-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    border-top: 1px solid var(--line); border-left: 1px solid var(--line);
+    padding-top: 40px; border-top: none; padding-top: 0;
+}
+.tag-tile {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    padding: 18px 16px;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    transition: background .2s;
+}
+.tag-tile:hover { background: var(--accent-soft); }
+.tag-tile .t-name { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--text); transition: color .2s; }
+.tag-tile:hover .t-name { color: var(--accent); }
+.tag-tile .t-count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+/* ============ 变体切换 ============ */
+.variant { display: none; }
+.variant.active { display: block; }
+.preview-bar {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 200;
+    display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 999px;
+    background: rgba(28,41,37,.88); backdrop-filter: blur(10px); box-shadow: 0 8px 30px rgba(0,0,0,.25);
+    font-size: 13px; white-space: nowrap; max-width: 96vw; overflow-x: auto; scrollbar-width: none;
+}
+.preview-bar::-webkit-scrollbar { display: none; }
+.preview-bar .label { color: rgba(255,255,255,.55); padding: 0 6px; font-size: 11px; letter-spacing: .1em; }
+.preview-bar button { border: none; background: transparent; color: rgba(255,255,255,.85); font-size: 13px; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.preview-bar button:hover { background: rgba(255,255,255,.12); }
+.preview-bar button.active { background: #57b4a6; color: #14201c; font-weight: 600; }
+.preview-bar .sep { width: 1px; height: 18px; background: rgba(255,255,255,.18); margin: 0 4px; }
+
+@media (max-width: 760px) {
+    .page-wrap { padding: 0 20px; }
+    .page-head { padding: 44px 0 28px; }
+    .tag-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-inner">
+        <a class="site-title"><span class="dot"></span>zhaoxin 的博客</a>
+        <nav class="site-nav">
+            <a href="#">主页</a>
+            <a href="#">专栏</a>
+            <a href="#" class="active">标签</a>
+            <a href="#">关于</a>
+        </nav>
+        <button class="theme-toggle" id="theme-btn">🌙</button>
+    </div>
+</header>
+
+<!-- ============ 变体 A · 权重云 ============ -->
+<section class="variant active" data-variant="a">
+    <div class="page-wrap">
+        <header class="page-head">
+            <p class="page-kicker">标签</p>
+            <h1 class="page-title">拾起一个词。</h1>
+            <p class="page-sub">按词检索，相关的那些篇，会自己排着队过来。</p>
+            <p class="page-meta mono">共 <em>7</em> 个标签 · <em>8</em> 处标记</p>
+        </header>
+
+        <div class="tag-cloud">
+            <a href="#" class="tag-c s2">生活<span class="c">2</span></a>
+            <a href="#" class="tag-c s1">#Jekyll<span class="c">1</span></a>
+            <a href="#" class="tag-c s1">#前端<span class="c">1</span></a>
+            <a href="#" class="tag-c s1">#markdown<span class="c">1</span></a>
+            <a href="#" class="tag-c s1">#git<span class="c">1</span></a>
+            <a href="#" class="tag-c s1">#hello<span class="c">1</span></a>
+            <a href="#" class="tag-c s1">#读书<span class="c">1</span></a>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 变体 B · 索引清单 ============ -->
+<section class="variant" data-variant="b">
+    <div class="page-wrap">
+        <header class="page-head">
+            <p class="page-kicker">标签 · 索引</p>
+            <h1 class="page-title">按词，逐条索引。</h1>
+            <p class="page-sub">和专栏总览同一套清单，点线牵着篇数。</p>
+            <p class="page-meta mono">共 <em>7</em> 个标签 · <em>8</em> 处标记</p>
+        </header>
+
+        <div class="tag-list">
+            <a class="tag-row" href="#"><span class="tag-name">#生活</span><span class="leader"></span><span class="tag-count mono">2 篇</span></a>
+            <a class="tag-row" href="#"><span class="tag-name">#Jekyll</span><span class="leader"></span><span class="tag-count mono">1 篇</span></a>
+            <a class="tag-row" href="#"><span class="tag-name">#前端</span><span class="leader"></span><span class="tag-count mono">1 篇</span></a>
+            <a class="tag-row" href="#"><span class="tag-name">#markdown</span><span class="leader"></span><span class="tag-count mono">1 篇</span></a>
+            <a class="tag-row" href="#"><span class="tag-name">#git</span><span class="leader"></span><span class="tag-count mono">1 篇</span></a>
+            <a class="tag-row" href="#"><span class="tag-name">#hello</span><span class="leader"></span><span class="tag-count mono">1 篇</span></a>
+            <a class="tag-row" href="#"><span class="tag-name">#读书</span><span class="leader"></span><span class="tag-count mono">1 篇</span></a>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 变体 C · 字块矩阵 ============ -->
+<section class="variant" data-variant="c">
+    <div class="page-wrap">
+        <header class="page-head">
+            <p class="page-kicker">标签 · 字块</p>
+            <h1 class="page-title">一格，一词。</h1>
+            <p class="page-sub">每个标签一小格，横平竖直地排开。</p>
+            <p class="page-meta mono">共 <em>7</em> 个标签 · <em>8</em> 处标记</p>
+        </header>
+
+        <div class="tag-grid">
+            <a class="tag-tile" href="#"><span class="t-name">生活</span><span class="t-count mono">2</span></a>
+            <a class="tag-tile" href="#"><span class="t-name">Jekyll</span><span class="t-count mono">1</span></a>
+            <a class="tag-tile" href="#"><span class="t-name">前端</span><span class="t-count mono">1</span></a>
+            <a class="tag-tile" href="#"><span class="t-name">markdown</span><span class="t-count mono">1</span></a>
+            <a class="tag-tile" href="#"><span class="t-name">git</span><span class="t-count mono">1</span></a>
+            <a class="tag-tile" href="#"><span class="t-name">hello</span><span class="t-count mono">1</span></a>
+            <a class="tag-tile" href="#"><span class="t-name">读书</span><span class="t-count mono">1</span></a>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 切换条 ============ -->
+<div class="preview-bar">
+    <span class="label">变体</span>
+    <button data-variant-btn="a" class="active">A · 权重云</button>
+    <button data-variant-btn="b">B · 索引清单</button>
+    <button data-variant-btn="c">C · 字块矩阵</button>
+    <span class="sep"></span>
+    <span class="label">主题</span>
+    <button id="theme-btn2">深色</button>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var root = document.documentElement;
+
+    var themeBtns = [document.getElementById('theme-btn'), document.getElementById('theme-btn2')];
+    function theme() { return root.getAttribute('data-theme'); }
+    function render() {
+        var dark = theme() === 'dark';
+        themeBtns.forEach(function (b) { if (b) b.textContent = dark ? '☀' : '🌙'; });
+    }
+    render();
+    themeBtns.forEach(function (b) {
+        if (b) b.addEventListener('click', function () {
+            root.setAttribute('data-theme', theme() === 'light' ? 'dark' : 'light');
+            render();
+        });
+    });
+
+    var btns = document.querySelectorAll('[data-variant-btn]');
+    btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            btns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            document.querySelectorAll('.variant').forEach(function (v) {
+                v.classList.toggle('active', v.dataset.variant === btn.dataset.variantBtn);
+            });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        });
+    });
+})();
+</script>
+</body>
+</html>

@@ -4,9 +4,19 @@ _site/
 .jekyll-cache/
 .jekyll-metadata
 
+# 由 scripts/pull-notes.sh 生成的笔记(构建时自动生成,不入库)
+_posts/notes/
+assets/notes/
+
+# 构建时临时 clone 的笔记仓库(不入库,见 .github/workflows)
+_notes-src/
+
 # 依赖
 vendor/
 .bundle/
+
+# 本地工具配置(含本机路径,不入库)
+.claude/
 
 # 系统文件
 .DS_Store

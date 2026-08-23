@@ -1,0 +1,70 @@
+{% if page.column %}
+{% assign column_title = page.column %}
+{% assign current_post = page %}
+{% else %}
+{% assign column_title = page.title %}
+{% assign current_post = nil %}
+{% endif %}
+
+{% assign column_posts = site.posts | where: "column", column_title %}
+{% assign ordered = column_posts | where_exp: "p", "p.order" | sort: "order" %}
+{% assign rest = column_posts | where_exp: "p", "p.order == nil" %}
+{% assign column_posts = ordered | concat: rest %}
+{% if current_post == nil %}{% assign current_post = column_posts | first %}{% endif %}
+
+{% assign column_page = site.columns | where: "title", column_title | first %}
+
+<div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_page.url | default: '' }}">
+    <aside class="col-left">
+        <h2 class="col-left-title"><a href="{{ '/columns/' | relative_url }}">{{ column_title }}</a></h2>
+        <p class="col-left-count mono muted">共 {{ column_posts.size }} 篇文章</p>
+        <ul class="col-left-list">
+            {% for post in column_posts %}
+            <li><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}</a></li>
+            {% endfor %}
+            {% if column_posts.size == 0 %}
+            <li class="muted">暂无文章</li>
+            {% endif %}
+        </ul>
+    </aside>
+
+    <article class="col-main">
+        {% if current_post %}
+        {% if current_post.column %}{% assign flag = current_post.column %}{% else %}{% assign flag = "随笔" %}{% endif %}
+        <div class="toc-source">
+            <header class="post-header">
+                <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}</p>
+                <h1 class="post-title">{{ current_post.title }}</h1>
+                <p class="post-meta mono">
+                    <time datetime="{{ current_post.date | date: "%Y-%m-%d" }}">{{ current_post.date | date: "%Y-%m-%d" }}</time>
+                    {% if current_post.column %}<span class="sep">·</span><a href="{{ column_page.url | relative_url }}">{{ current_post.column }}</a>{% endif %}
+                </p>
+            </header>
+            <div class="post-content">
+                {% if current_post.url == page.url %}
+                {{ content }}
+                {% else %}
+                {{ current_post.content }}
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <p class="muted">这个专栏还没有文章。</p>
+        {% endif %}
+    </article>
+
+    <aside class="col-right">
+        <p class="col-toc-label mono">本文目录</p>
+        <ul class="col-toc" id="col-toc"></ul>
+    </aside>
+
+    <button id="col-toggle" class="col-toggle" type="button" aria-pressed="false" title="切换中栏宽度">
+        <svg class="col-toggle-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 3h6v6"></path>
+            <path d="M9 21H3v-6"></path>
+            <path d="M21 3l-7 7"></path>
+            <path d="M3 21l7-7"></path>
+        </svg>
+        <span class="label">全宽</span>
+    </button>
+</div>

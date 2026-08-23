@@ -11,6 +11,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+  # 定时重建:构建时重新拉取笔记仓库(见 scripts/notes-repos.txt)的最新提交
+  schedule:
+    - cron: "23 */1 * * *"
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -38,6 +42,9 @@ jobs:
         with:
           ruby-version: "3.3"
           bundler-cache: true
+      # 从 scripts/notes-repos.txt 拉取全部笔记仓库并生成(临时 clone,不入库)
+      - name: Generate notes
+        run: bash scripts/pull-notes.sh
       - name: Build with Jekyll
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
       - name: Upload artifact

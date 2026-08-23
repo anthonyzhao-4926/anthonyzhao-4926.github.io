@@ -3,6 +3,7 @@ layout: page
 title: 归档
 permalink: /archives/
 order: 4
+nav: false
 # 按时间归档展示全部文章（按月分组）
 ---
 

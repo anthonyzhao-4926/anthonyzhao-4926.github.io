@@ -1,19 +1,19 @@
 ---
 layout: default
 ---
+{% if page.column %}
+{% include column-shell.html %}
+{% else %}
 <article class="post">
     <header class="post-header">
+        <p class="post-flag mono"><span class="flag-dot"></span>随笔</p>
         <h1 class="post-title">{{ page.title }}</h1>
-        <p class="post-meta">
-            <time datetime="{{ page.date | date: " %Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>
-            {% if page.column %}<a class="pill" href="{{ '/columns/' | relative_url }}">{{ page.column }}</a>{% endif %}
-            {% for category in page.categories %}<a class="pill"
-                href="{{ '/categories/' | relative_url }}{{ category | slugify }}/">{{ category }}</a>{% endfor %}
-            {% for tag in page.tags %}<a class="pill" href="{{ '/tags/' | relative_url }}{{ tag | slugify }}/">{{ tag
-                }}</a>{% endfor %}
+        <p class="post-meta mono">
+            <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>
         </p>
     </header>
     <div class="post-content">
         {{ content }}
     </div>
 </article>
+{% endif %}

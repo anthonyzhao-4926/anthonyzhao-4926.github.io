@@ -10,10 +10,23 @@ timezone: Asia/Shanghai
 title: zhaoxin 的博客
 tagline: 记录与分享
 description: >-
-  zhaoxin 的个人博客，基于 Jekyll 自研主题构建，
-  记录技术学习与生活随笔。
+  zhaoxin 的博客。技术学习与生活随笔，
+  安静地记下来，真诚地分享出去。
 url: "https://blog.zhaoxin.website"   # 与 CNAME 文件保持一致
 baseurl: ""                            # 项目站点部署（子路径）时才需要填写
+
+# 不参与构建的文件（预览稿留在仓库，不部署）
+exclude:
+  - preview.html
+  - preview-column.html
+  - preview-columns.html
+  - preview-tags.html
+  - scripts
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
 
 # GitHub 账号
 github:
@@ -85,17 +98,6 @@ defaults:
 
 # 插件列表（与 Gemfile 保持一致）
 plugins:
-  - jekyll-archives
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-seo-tag
-
-# 分类 / 标签归档页（由 jekyll-archives 生成）
-jekyll-archives:
-  enabled: [categories, tags]
-  layouts:
-    category: category
-    tag: tag
-  permalinks:
-    tag: /tags/:name/
-    category: /categories/:name/
