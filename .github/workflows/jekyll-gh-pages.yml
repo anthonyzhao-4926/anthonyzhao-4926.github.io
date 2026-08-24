@@ -61,7 +61,8 @@ jobs:
             libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
             libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
             libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libcairo2 \
-            libxshmfence1 libx11-xcb1 libxcb-dri3-0
+            libxshmfence1 libx11-xcb1 libxcb-dri3-0 \
+            fonts-noto-cjk
       # 渲染失败即构建失败（严格模式见 _plugins/mermaid.rb），避免部署缺图页面
       - name: Build with Jekyll
         env:
