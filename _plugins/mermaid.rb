@@ -24,6 +24,8 @@ module Jekyll
 
     # mermaid 配置（与站点字体保持一致，见同目录 mermaid.config.json）
     CONFIG = File.join(__dir__, 'mermaid.config.json')
+    # puppeteer 启动配置（--no-sandbox 等，CI 环境必需，见同目录 puppeteer.config.json）
+    PUPPETEER_CONFIG = File.join(__dir__, 'puppeteer.config.json')
 
     # 严格模式：渲染失败即构建失败（GitHub Actions 设置）
     STRICT = ENV['MERMAID_FAIL_ON_ERROR'] == '1'
@@ -113,7 +115,7 @@ module Jekyll
       def run_mmdc(mmdc, input, output, theme)
         cmd = [mmdc, '-i', input, '-o', output,
                '-b', 'transparent', '-t', theme,
-               '-c', CONFIG, '--quiet']
+               '-c', CONFIG, '-p', PUPPETEER_CONFIG, '--quiet']
         _stdout, stderr, status = Open3.capture3(*cmd)
         unless status.success?
           Jekyll.logger.warn 'Mermaid:', "渲染失败 #{File.basename(output)}（#{theme}）:\n#{stderr}"
