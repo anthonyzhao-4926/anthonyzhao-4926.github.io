@@ -67,7 +67,7 @@ jobs:
         run: |
           echo 'graph TD; A-->B;' > /tmp/smoke.mmd
           ./node_modules/.bin/mmdc -i /tmp/smoke.mmd -o /tmp/smoke.svg \
-            -b transparent -t neutral --quiet
+            -b transparent -t neutral -c _plugins/mermaid.config.json --quiet
           test -s /tmp/smoke.svg
       - name: Build with Jekyll
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
