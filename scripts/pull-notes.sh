@@ -57,6 +57,21 @@ while read -r name url; do
     [ -z "$date" ] && date=$(git -C "$src" log -1 --format=%cs 2>/dev/null || true)
 
     slug="${base%.md}"
+    # 源文件若已有 YAML front matter,取其 title,正文不再展示这段元数据
+    src_title=$(awk '
+      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+      fm==1 && $0 ~ /^title:[[:space:]]*/ {
+        sub(/^title:[[:space:]]*/, "")
+        gsub(/^["'\'']+|["'\'']+$/, "")
+        print
+        exit
+      }
+    ' "$f")
+    title="${src_title:-$slug}"
+    yaml_title=${title//\\/\\\\}
+    yaml_title=${yaml_title//\"/\\\"}
+
     rel_dir=$(dirname "$rel")
     if [ "$rel_dir" = "." ]; then
       out_file="$out/${date}-${slug}.md"
@@ -67,12 +82,24 @@ while read -r name url; do
 
     {
       echo "---"
-      echo "title: \"$slug\""
+      echo "title: \"$yaml_title\""
       echo "date: $date"
       echo "---"
       echo ""
-      # 改写相对图片引用: ](assets/xx.png -> ](/assets/notes/<name>/xx.png
-      sed "s|\](assets/|](/assets/notes/$name/|g" "$f"
+      # 去掉源文件 front matter,再改写相对图片引用
+      awk '
+        function flush_buf() {
+          for (i = 1; i <= n; i++) print buf[i]
+        }
+        NR==1 && $0 ~ /^---[[:space:]]*$/ { in_fm=1; n=0; buf[++n]=$0; next }
+        in_fm {
+          buf[++n]=$0
+          if ($0 ~ /^---[[:space:]]*$/) { in_fm=0; n=0; next }
+          next
+        }
+        { print }
+        END { if (in_fm) flush_buf() }
+      ' "$f" | sed "s|\](assets/|](/assets/notes/$name/|g"
     } > "$out_file"
 
     count=$((count + 1))

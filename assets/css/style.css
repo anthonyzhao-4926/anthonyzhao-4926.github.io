@@ -14,17 +14,17 @@
 }
 
 [data-theme="light"] {
-    --bg: #f4f9f9;            /* 纸：冷调水青白 */
+    --bg: #ffffff;            /* 纸：纯白 */
     --text: #1f2c2b;          /* 墨：深蓝墨 */
     --muted: #7c8f8c;         /* 黛：雾青灰 */
     --accent: #379a90;        /* 青：湖水青主色 */
     --accent-soft: rgba(55, 154, 144, 0.10);
     --cinnabar: #e0825a;      /* 朱：全站唯一暖色，仅左上角圆点 */
-    --line: #dde9e7;          /* 线：发丝线 */
-    --line-strong: #c6d9d5;
-    --code-bg: #ecf5f3;
+    --line: #e8eeee;          /* 线：发丝线 */
+    --line-strong: #d4dfdc;
+    --code-bg: #f4f7f6;
     --card: #ffffff;
-    --header-bg: rgba(244, 249, 249, 0.82);
+    --header-bg: rgba(255, 255, 255, 0.86);
     --shadow: 0 1px 2px rgba(31, 44, 43, 0.05);
 }
 
@@ -51,7 +51,6 @@ html { scroll-behavior: smooth; }
 body {
     margin: 0;
     background: var(--bg);
-    background-image: radial-gradient(1100px 420px at 50% -120px, rgba(55, 154, 144, 0.07), transparent 70%);
     color: var(--text);
     font-family: var(--font-body);
     font-size: 16px;
@@ -361,6 +360,19 @@ img { max-width: 100%; }
 .page,
 .post {
     padding: 56px 0 16px;
+}
+
+/* 普通文章：中栏正文 + 右侧本文目录 */
+.post-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 248px;
+    gap: 40px;
+    align-items: start;
+}
+
+.post-shell .post {
+    min-width: 0;
+    padding-top: 56px;
 }
 
 .page-title {
@@ -1025,7 +1037,7 @@ img { max-width: 100%; }
 
 .column-shell {
     display: grid;
-    grid-template-columns: 210px minmax(0, 1fr) 200px;
+    grid-template-columns: 210px minmax(0, 1fr) 248px;
     gap: 40px;
     align-items: start;
     padding-top: 48px;
@@ -1144,6 +1156,11 @@ img { max-width: 100%; }
     font-size: 13px;
 }
 
+.col-toc .toc-empty {
+    padding: 6px 10px;
+    color: var(--muted);
+}
+
 /* 中栏宽度切换按钮（右下角贴边，悬停展开） */
 .col-toggle {
     position: fixed;
@@ -1202,7 +1219,7 @@ img { max-width: 100%; }
 .column-shell.fullwidth .col-left,
 .column-shell.fullwidth .col-right { display: none; }
 
-/* 窄屏：三栏折叠为单栏 */
+/* 窄屏：三栏 / 文章双栏折叠为单栏 */
 @media (max-width: 960px) {
     .main-content.wide { max-width: 100%; }
 
@@ -1212,13 +1229,13 @@ img { max-width: 100%; }
         padding-top: 28px;
     }
 
-    .col-left,
-    .col-right {
+    .column-shell .col-left,
+    .column-shell .col-right {
         position: static;
         max-height: none;
     }
 
-    .col-right {
+    .column-shell .col-right {
         border-top: 1px solid var(--line);
         padding-top: 16px;
     }
@@ -1257,6 +1274,18 @@ img { max-width: 100%; }
     }
 
     .post-title { font-size: 19px; }
+
+    .post-shell {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .post-shell .col-right {
+        position: static;
+        max-height: none;
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+    }
 
     .page,
     .post {

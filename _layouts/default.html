@@ -8,7 +8,7 @@
 <body>
     {% include header.html %}
 
-    <main class="container main-content{% if page.layout == 'column' or page.column %} wide{% endif %}">
+    <main class="container main-content{% if page.layout == 'column' or page.column or page.layout == 'post' %} wide{% endif %}">
         {{ content }}
     </main>
 

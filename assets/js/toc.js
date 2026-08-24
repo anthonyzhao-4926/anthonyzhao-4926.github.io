@@ -1,26 +1,26 @@
-/* 专栏页阅读器：
-   1) 右栏「本文目录」：扫描 .toc-source 的 h2/h3 生成，并随滚动高亮当前小节
-   2) 左栏文章点击：内联切换中栏正文与右栏目录，左栏目录保持不动 */
+/* 文章右侧目录：
+   1) 扫描 .toc-source 的 h2/h3 生成，并随滚动高亮当前小节
+   2) 专栏页额外支持左栏切换、深链与全宽 */
 (function () {
     'use strict';
 
-    var shell = document.querySelector('.column-shell');
-    if (!shell) return;
-
-    var center = shell.querySelector('.toc-source');
-    var list = document.getElementById('col-toc');
-    if (!center || !list) return;
-
-    var cache = {};
-    var firstUrl = shell.getAttribute('data-first') || '';
-    var colBase = shell.getAttribute('data-column') || location.pathname;
-
-    /* ---- 目录生成 + 滚动高亮 ---- */
     var scrollHandler = null;
 
-    function buildToc() {
+    function buildToc(center, list) {
         list.innerHTML = '';
         var heads = center.querySelectorAll('h2, h3');
+        if (heads.length === 0) {
+            var empty = document.createElement('li');
+            empty.className = 'toc-empty';
+            empty.textContent = '暂无目录';
+            list.appendChild(empty);
+            if (scrollHandler) {
+                window.removeEventListener('scroll', scrollHandler);
+                scrollHandler = null;
+            }
+            return;
+        }
+
         heads.forEach(function (h, i) {
             if (!h.id) h.id = 'col-sec-' + i;
             var li = document.createElement('li');
@@ -33,9 +33,6 @@
         });
 
         if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
-        scrollHandler = null;
-        if (heads.length === 0) return;
-
         var items = [];
         heads.forEach(function (h, i) {
             items.push({ el: h, link: list.children[i].querySelector('a') });
@@ -55,22 +52,34 @@
         scrollHandler();
     }
 
-    /* ---- 左栏当前高亮 ---- */
+    var shell = document.querySelector('.column-shell');
+    var center = document.querySelector('.toc-source');
+    var list = document.getElementById('col-toc');
+    if (!center || !list) return;
+
+    if (!shell) {
+        buildToc(center, list);
+        return;
+    }
+
+    var cache = {};
+    var firstUrl = shell.getAttribute('data-first') || '';
+    var colBase = shell.getAttribute('data-column') || location.pathname;
+
     function setCurrent(url) {
         shell.querySelectorAll('.col-left-list a[data-post]').forEach(function (a) {
             a.classList.toggle('current', a.getAttribute('data-post') === url);
         });
     }
 
-    /* ---- 内联渲染到中栏 ---- */
     function applyPost(url, headerHtml, contentHtml, updateHistory) {
         center.innerHTML = headerHtml + contentHtml;
-        buildToc();
+        buildToc(center, list);
         setCurrent(url);
         if (updateHistory !== false) {
             try {
                 history.pushState({ url: url }, '', colBase + '#/' + encodeURIComponent(url));
-            } catch (e) { /* ignore */ }
+            } catch (pushStateErr) { /* ignore */ }
         }
         window.scrollTo({ top: 0, behavior: 'auto' });
     }
@@ -85,16 +94,15 @@
             .then(function (r) { return r.text(); })
             .then(function (html) {
                 var doc = new DOMParser().parseFromString(html, 'text/html');
-                var h = doc.querySelector('.post-header');
-                var c = doc.querySelector('.post-content');
-                if (!h || !c) return;
-                cache[url] = { header: h.outerHTML, content: c.outerHTML };
-                applyPost(url, h.outerHTML, c.outerHTML, updateHistory);
+                var headerEl = doc.querySelector('.post-header');
+                var contentEl = doc.querySelector('.post-content');
+                if (!headerEl || !contentEl) return;
+                cache[url] = { header: headerEl.outerHTML, content: contentEl.outerHTML };
+                applyPost(url, headerEl.outerHTML, contentEl.outerHTML, updateHistory);
             })
-            .catch(function () { /* 请求失败保持现状 */ });
+            .catch(function (loadPostErr) { /* 请求失败保持现状 */ });
     }
 
-    /* ---- 左栏点击：内联切换 ---- */
     shell.querySelectorAll('.col-left-list a[data-post]').forEach(function (a) {
         a.addEventListener('click', function (e) {
             if (a.classList.contains('current')) return;
@@ -103,7 +111,6 @@
         });
     });
 
-    /* ---- 前进/后退 与 深链（#/文章URL） ---- */
     function hashUrl() {
         var m = location.hash.match(/^#\/(.+)$/);
         return m ? decodeURIComponent(m[1]) : null;
@@ -117,11 +124,10 @@
     var deep = hashUrl();
     if (deep) loadPost(deep, false);
 
-    /* ---- 中栏全宽 / 默认 切换 ---- */
     var toggleBtn = document.getElementById('col-toggle');
     if (toggleBtn) {
         var savedMode = null;
-        try { savedMode = localStorage.getItem('col-mode'); } catch (e) {}
+        try { savedMode = localStorage.getItem('col-mode'); } catch (readModeErr) {}
         if (savedMode === 'full') shell.classList.add('fullwidth');
 
         function renderToggle() {
@@ -134,11 +140,11 @@
             shell.classList.toggle('fullwidth');
             try {
                 localStorage.setItem('col-mode', shell.classList.contains('fullwidth') ? 'full' : 'default');
-            } catch (e) {}
+            } catch (saveModeErr) {}
             renderToggle();
         });
         renderToggle();
     }
 
-    buildToc();
+    buildToc(center, list);
 })();

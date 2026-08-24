@@ -41,8 +41,7 @@ social:
 
 # 主题外观：深浅色切换由 assets/js/theme.js 控制（不写死主题模式）
 
-# 文章右侧目录（TOC）：自研主题暂未提供
-# toc: true
+# 文章右侧目录（TOC）：所有文章页由 toc.js 根据 h2/h3 自动生成
 
 # 评论功能（可选，后续可开启 giscus / utterances / disqus）
 comments:

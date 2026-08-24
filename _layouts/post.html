@@ -4,16 +4,22 @@ layout: default
 {% if page.column %}
 {% include column-shell.html %}
 {% else %}
-<article class="post">
-    <header class="post-header">
-        <p class="post-flag mono"><span class="flag-dot"></span>随笔</p>
-        <h1 class="post-title">{{ page.title }}</h1>
-        <p class="post-meta mono">
-            <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>
-        </p>
-    </header>
-    <div class="post-content">
-        {{ content }}
-    </div>
-</article>
+<div class="post-shell">
+    <article class="post toc-source">
+        <header class="post-header">
+            <p class="post-flag mono"><span class="flag-dot"></span>随笔</p>
+            <h1 class="post-title">{{ page.title }}</h1>
+            <p class="post-meta mono">
+                <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>
+            </p>
+        </header>
+        <div class="post-content">
+            {{ content }}
+        </div>
+    </article>
+    <aside class="col-right">
+        <p class="col-toc-label mono">本文目录</p>
+        <ul class="col-toc" id="col-toc"></ul>
+    </aside>
+</div>
 {% endif %}
