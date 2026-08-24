@@ -70,9 +70,18 @@ module Jekyll
 
         tmp = File.join(Dir.tmpdir, "mermaid-#{base}-#{Process.pid}.mmd")
         File.write(tmp, item[:code])
-        ok = run_mmdc(mmdc, tmp, light, 'neutral') && run_mmdc(mmdc, tmp, dark, 'dark')
+        # 重试一次：Chromium 启动偶发崩溃（如 macOS 沙箱/资源紧张）时提高成功率
+        ok = run_mmdc(mmdc, tmp, light, 'neutral') || run_mmdc(mmdc, tmp, light, 'neutral')
+        ok &&= (run_mmdc(mmdc, tmp, dark, 'dark') || run_mmdc(mmdc, tmp, dark, 'dark'))
         File.delete(tmp) if File.exist?(tmp)
-        Jekyll.logger.warn 'Mermaid:', "渲染失败 #{base}，页面中对应图表将缺失" unless ok
+        return if ok
+
+        Jekyll.logger.warn 'Mermaid:', "渲染失败 #{base}，页面中对应图表将缺失"
+        # 错误日志写入部署产物，便于线上排查（见 /assets/mermaid/mermaid-error.log）
+        log = File.join(dir, 'mermaid-error.log')
+        File.open(log, 'a') do |f|
+          f.puts "[#{Time.now}] #{base}: light=#{File.exist?(light)} dark=#{File.exist?(dark)}"
+        end
       end
 
       def img_tag(site, slug, index)
