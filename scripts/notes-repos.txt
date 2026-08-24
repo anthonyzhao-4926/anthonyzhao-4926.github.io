@@ -3,4 +3,4 @@
 # 以 # 开头的行会被忽略,用于临时停用某个仓库
 # 添加新仓库:新增一行即可;删除/停用:删掉或注释该行
 
-claude-code https://github.com/anthonyzhao-4926/claude-code.git
+blog https://github.com/anthonyzhao-4926/blog.git
