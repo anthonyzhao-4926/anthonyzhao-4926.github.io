@@ -29,6 +29,7 @@ while read -r name url; do
   assets_src="$src/assets"
 
   echo "▶ 仓库: $name"
+  echo "▶ 仓库url: $url"
 
   # clone(已存在则静默跳过,避免覆盖本地改动)
   if [ ! -d "$src/.git" ]; then
