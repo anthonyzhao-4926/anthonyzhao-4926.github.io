@@ -182,6 +182,17 @@
             padding: 4px 0;
         }
 
+        /* 侧栏滚动容器：隐藏滚动条（保持滚轮可滚动） */
+        .col-left,
+        .col-right {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .col-left::-webkit-scrollbar,
+        .col-right::-webkit-scrollbar {
+            display: none;
+        }
+
         .col-left-title {
             margin: 0 0 4px;
             font-family: var(--font-display);
