@@ -62,14 +62,10 @@ jobs:
             libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
             libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libcairo2 \
             libxshmfence1 libx11-xcb1 libxcb-dri3-0
-      # mermaid 冒烟测试：渲染失败立即暴露（避免 SVG 静默缺失后再部署）
-      - name: Smoke test mermaid-cli
-        run: |
-          echo 'graph TD; A-->B;' > /tmp/smoke.mmd
-          ./node_modules/.bin/mmdc -i /tmp/smoke.mmd -o /tmp/smoke.svg \
-            -b transparent -t neutral -c _plugins/mermaid.config.json --quiet
-          test -s /tmp/smoke.svg
+      # 渲染失败即构建失败（严格模式见 _plugins/mermaid.rb），避免部署缺图页面
       - name: Build with Jekyll
+        env:
+          MERMAID_FAIL_ON_ERROR: "1"
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

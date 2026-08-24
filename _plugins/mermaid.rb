@@ -9,6 +9,8 @@
 # _site 中不在其输出清单里的文件，若在 post_render 阶段直接写 SVG 会被误删。
 #
 # 未安装 mmdc 时降级：打印警告并保留原始代码块，不影响其他内容构建。
+# 严格模式（MERMAID_FAIL_ON_ERROR=1，CI 构建启用）：渲染失败直接使构建失败，
+# 避免部署缺图页面；本地开发不设该变量，保持警告降级。
 
 require 'cgi'
 require 'fileutils'
@@ -23,8 +25,13 @@ module Jekyll
     # mermaid 配置（与站点字体保持一致，见同目录 mermaid.config.json）
     CONFIG = File.join(__dir__, 'mermaid.config.json')
 
+    # 严格模式：渲染失败即构建失败（GitHub Actions 设置）
+    STRICT = ENV['MERMAID_FAIL_ON_ERROR'] == '1'
+
     # 待渲染队列：post_render 时收集，post_write 时统一渲染
     PENDING = []
+    # 本次构建渲染失败的图表（严格模式下用于汇总报错）
+    FAILED = []
 
     class << self
       # 提取代码块并替换为 img 标签（不在此处渲染 SVG）
@@ -53,8 +60,12 @@ module Jekyll
         PENDING.reject! { |item| item[:site] == site }
         return if items.empty?
 
+        FAILED.clear
         mmdc = find_mmdc(site)
         items.each { |item| render_one(site, mmdc, item) }
+        return unless STRICT && !FAILED.empty?
+
+        raise "Mermaid 渲染失败: #{FAILED.join(', ')}（详见 _site/assets/mermaid/mermaid-error.log）"
       end
 
       private
@@ -77,6 +88,7 @@ module Jekyll
         return if ok
 
         Jekyll.logger.warn 'Mermaid:', "渲染失败 #{base}，页面中对应图表将缺失"
+        FAILED << base
         # 错误日志写入部署产物，便于线上排查（见 /assets/mermaid/mermaid-error.log）
         log = File.join(dir, 'mermaid-error.log')
         File.open(log, 'a') do |f|
