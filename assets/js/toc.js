@@ -132,7 +132,7 @@
     var toggleBtn = document.getElementById('col-toggle');
     if (toggleBtn) {
         var savedMode = null;
-        try { savedMode = localStorage.getItem('col-mode'); } catch (readModeErr) {}
+        try { savedMode = localStorage.getItem('col-mode'); } catch (readModeErr) { }
         if (savedMode === 'full') wrap.classList.add('fullwidth');
 
         function renderToggle() {
@@ -145,7 +145,7 @@
             wrap.classList.toggle('fullwidth');
             try {
                 localStorage.setItem('col-mode', wrap.classList.contains('fullwidth') ? 'full' : 'default');
-            } catch (saveModeErr) {}
+            } catch (saveModeErr) { }
             renderToggle();
         });
         renderToggle();

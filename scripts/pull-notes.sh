@@ -100,6 +100,18 @@ while read -r name url; do
       out_file="$out/$rel_dir/${date}-${slug}.md"
     fi
 
+    # 图片资源:优先拷贝该 md 所在目录的 assets(保持相对结构),引用改写为对应绝对路径;
+    # 无本地 assets 时回退到仓库根 assets(循环外已平铺拷贝到 /assets/notes/<name>/)
+    md_assets="$(dirname "$f")/assets"
+    if [ "$rel_dir" != "." ] && [ -d "$md_assets" ]; then
+      assets_out="$ASSETS_BASE/$name/$rel_dir/assets"
+      mkdir -p "$assets_out"
+      cp -R "$md_assets"/. "$assets_out"/
+      img_prefix="/assets/notes/$name/$rel_dir/assets"
+    else
+      img_prefix="/assets/notes/$name"
+    fi
+
     {
       echo "---"
       echo "title: \"$yaml_title\""
@@ -121,7 +133,7 @@ while read -r name url; do
         }
         { print }
         END { if (in_fm) flush_buf() }
-      ' "$f" | sed "s|\](assets/|](/assets/notes/$name/|g"
+      ' "$f" | sed "s|\](assets/|]($img_prefix/|g"
     } > "$out_file"
 
     count=$((count + 1))
