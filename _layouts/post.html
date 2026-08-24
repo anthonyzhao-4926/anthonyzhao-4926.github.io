@@ -21,5 +21,15 @@ layout: default
         <p class="col-toc-label mono">本文目录</p>
         <ul class="col-toc" id="col-toc"></ul>
     </aside>
+
+    <button id="col-toggle" class="col-toggle" type="button" aria-pressed="false" title="切换中栏宽度">
+        <svg class="col-toggle-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 3h6v6"></path>
+            <path d="M9 21H3v-6"></path>
+            <path d="M21 3l-7 7"></path>
+            <path d="M3 21l7-7"></path>
+        </svg>
+        <span class="label">全宽</span>
+    </button>
 </div>
 {% endif %}

@@ -19,10 +19,10 @@
     --header-bg:rgba(244,249,249,.82); --shadow:0 1px 2px rgba(31,44,43,.05);
 }
 [data-theme="dark"] {
-    --bg:#131e1c; --text:#e6efec; --muted:#93a6a2; --accent:#57b4a6;
-    --accent-soft:rgba(87,180,166,.12); --cinnabar:#e8926f; --line:#26342f;
-    --line-strong:#345049; --code-bg:#17231f; --card:#1b2a26;
-    --header-bg:rgba(19,30,28,.82); --shadow:0 1px 2px rgba(0,0,0,.4);
+    --bg:#1b1b1f; --text:#dfdfd6; --muted:#98989f; --accent:#57b4a6;
+    --accent-soft:rgba(87,180,166,.12); --cinnabar:#e8926f; --line:#2b2b31;
+    --line-strong:#3a3a42; --code-bg:#222226; --card:#232327;
+    --header-bg:rgba(27,27,31,.82); --shadow:0 1px 2px rgba(0,0,0,.4);
 }
 
 /* ============ 基础 ============ */
@@ -117,7 +117,7 @@ a:hover { color: var(--accent); }
 .col-toc-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .col-toc { list-style: none; margin: 0; padding: 0; font-size: 13.5px; line-height: 1.5; }
 .col-toc li { margin: 0; }
-.col-toc a { display: block; padding: 6px 10px; color: var(--muted); border-left: 2px solid var(--line); transition: color .2s, border-color .2s, background .2s; }
+.col-toc a { display: block; padding: 6px 10px; color: var(--muted); border-left: 2px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .2s, border-color .2s, background .2s; }
 .col-toc a:hover { color: var(--accent); }
 .col-toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
 .col-toc li.sub a { padding-left: 22px; font-size: 13px; }
@@ -342,6 +342,7 @@ print(hello("zhaoxin"))</code></pre>
             var a = document.createElement('a');
             a.href = '#' + h.id;
             a.textContent = h.textContent;
+            a.title = h.textContent;   /* 悬浮展示完整标题 */
             li.appendChild(a);
             list.appendChild(li);
         });

@@ -29,17 +29,17 @@
 }
 
 [data-theme="dark"] {
-    --bg: #131e1c;
-    --text: #e6efec;
-    --muted: #93a6a2;
+    --bg: #1b1b1f;            /* 背景：DeepSeek Harness 暗色 */
+    --text: #dfdfd6;          /* 墨：DeepSeek Harness 主文字 */
+    --muted: #98989f;         /* 黛：DeepSeek Harness 次文字 */
     --accent: #57b4a6;
     --accent-soft: rgba(87, 180, 166, 0.12);
     --cinnabar: #e8926f;
-    --line: #26342f;
-    --line-strong: #345049;
-    --code-bg: #17231f;
-    --card: #1b2a26;
-    --header-bg: rgba(19, 30, 28, 0.82);
+    --line: #2b2b31;
+    --line-strong: #3a3a42;
+    --code-bg: #222226;
+    --card: #232327;
+    --header-bg: rgba(27, 27, 31, 0.82);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
@@ -653,7 +653,7 @@ img { max-width: 100%; }
 }
 
 [data-theme="dark"] .highlight .o {
-    color: #e6efec;
+    color: #dfdfd6;
 }
 
 [data-theme="dark"] .highlight .m,
@@ -669,7 +669,7 @@ img { max-width: 100%; }
 
 [data-theme="dark"] .highlight .p,
 [data-theme="dark"] .highlight .w {
-    color: #e6efec;
+    color: #dfdfd6;
 }
 
 /* ---------- 专栏布局（左侧文章列表 + 内容） ---------- */
@@ -912,7 +912,7 @@ img { max-width: 100%; }
     justify-content: center;
     align-items: flex-start;
     padding: 12vh 24px 24px;
-    background: rgba(19, 30, 28, 0.55);
+    background: rgba(27, 27, 31, 0.55);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
 }
@@ -1140,6 +1140,9 @@ img { max-width: 100%; }
     padding: 6px 10px;
     color: var(--muted);
     border-left: 2px solid var(--line);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     transition: color .2s, border-color .2s, background .2s;
 }
 
@@ -1218,6 +1221,10 @@ img { max-width: 100%; }
 .column-shell.fullwidth { grid-template-columns: minmax(0, 1fr); }
 .column-shell.fullwidth .col-left,
 .column-shell.fullwidth .col-right { display: none; }
+
+/* 文章页同款：全宽模式隐藏右侧目录，正文通栏 */
+.post-shell.fullwidth { grid-template-columns: minmax(0, 1fr); }
+.post-shell.fullwidth .col-right { display: none; }
 
 /* 窄屏：三栏 / 文章双栏折叠为单栏 */
 @media (max-width: 960px) {
