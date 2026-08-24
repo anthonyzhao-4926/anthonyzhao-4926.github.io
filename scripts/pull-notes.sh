@@ -57,12 +57,32 @@ while read -r name url; do
     [ -z "$date" ] && date=$(git -C "$src" log -1 --format=%cs 2>/dev/null || true)
 
     slug="${base%.md}"
-    # 源文件若已有 YAML front matter,取其 title,正文不再展示这段元数据
+    # 源文件若已有 YAML front matter,取其 title/column/order,正文不再展示这段元数据
     src_title=$(awk '
       NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
       fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
       fm==1 && $0 ~ /^title:[[:space:]]*/ {
         sub(/^title:[[:space:]]*/, "")
+        gsub(/^["'\'']+|["'\'']+$/, "")
+        print
+        exit
+      }
+    ' "$f")
+    src_column=$(awk '
+      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+      fm==1 && $0 ~ /^column:[[:space:]]*/ {
+        sub(/^column:[[:space:]]*/, "")
+        gsub(/^["'\'']+|["'\'']+$/, "")
+        print
+        exit
+      }
+    ' "$f")
+    src_order=$(awk '
+      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+      fm==1 && $0 ~ /^order:[[:space:]]*/ {
+        sub(/^order:[[:space:]]*/, "")
         gsub(/^["'\'']+|["'\'']+$/, "")
         print
         exit
@@ -84,6 +104,8 @@ while read -r name url; do
       echo "---"
       echo "title: \"$yaml_title\""
       echo "date: $date"
+      [ -n "$src_column" ] && echo "column: $src_column"
+      [ -n "$src_order" ] && echo "order: $src_order"
       echo "---"
       echo ""
       # 去掉源文件 front matter,再改写相对图片引用
