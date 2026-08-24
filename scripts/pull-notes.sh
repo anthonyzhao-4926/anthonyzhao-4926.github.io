@@ -45,20 +45,25 @@ while read -r name url; do
     cp -R "$assets_src"/. "$ASSETS_BASE/$name"/
   fi
 
-  # 遍历仓库根目录下所有 .md(跳过 README 索引文件)
+  # 递归遍历仓库内所有 .md(跳过 README 索引文件,保留子目录结构以免同名冲突)
   count=0
-  for f in "$src"/*.md; do
-    [ -f "$f" ] || continue
-    base=$(basename "$f")
+  while IFS= read -r -d '' f; do
+    rel="${f#"$src"/}"
+    base=$(basename "$rel")
     [ "$base" = "README.md" ] && continue
 
     # 取该文件最后提交日期(YYYY-MM-DD),取不到则回退到仓库 HEAD 提交日期
-    date=$(git -C "$src" log -1 --format=%cs -- "$base" 2>/dev/null || true)
+    date=$(git -C "$src" log -1 --format=%cs -- "$rel" 2>/dev/null || true)
     [ -z "$date" ] && date=$(git -C "$src" log -1 --format=%cs 2>/dev/null || true)
 
     slug="${base%.md}"
-    # 输出文件名带仓库名前缀,避免不同仓库的同名文件互相覆盖
-    out_file="$out/${date}-${slug}.md"
+    rel_dir=$(dirname "$rel")
+    if [ "$rel_dir" = "." ]; then
+      out_file="$out/${date}-${slug}.md"
+    else
+      mkdir -p "$out/$rel_dir"
+      out_file="$out/$rel_dir/${date}-${slug}.md"
+    fi
 
     {
       echo "---"
@@ -72,7 +77,7 @@ while read -r name url; do
 
     count=$((count + 1))
     echo "  ✓ $out_file (提交日期 $date)"
-  done
+  done < <(find "$src" -type f -name '*.md' ! -path '*/.git/*' -print0)
 
   echo "  ✅ $name: $count 篇"
   total=$((total + count))
