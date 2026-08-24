@@ -1,0 +1,8 @@
+{
+    "name": "anthonyzhao-blog",
+    "private": true,
+    "description": "博客构建期依赖：mermaid-cli 用于 mermaid 图表服务端渲染（见 _plugins/mermaid.rb）",
+    "devDependencies": {
+        "@mermaid-js/mermaid-cli": "^11.0.0"
+    }
+}

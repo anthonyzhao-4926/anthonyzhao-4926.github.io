@@ -1449,6 +1449,14 @@ img {
     }
 }
 
+/* ---------- mermaid 图表（构建时服务端渲染，见 _plugins/mermaid.rb） ---------- */
+.mermaid-svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 28px auto;
+}
+
 /* ---------- 无障碍 ---------- */
 @media (prefers-reduced-motion: reduce) {
     html {

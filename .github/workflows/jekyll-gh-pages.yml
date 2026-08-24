@@ -45,6 +45,22 @@ jobs:
       # 从 scripts/notes-repos.txt 拉取全部笔记仓库并生成(临时 clone,不入库)
       - name: Generate notes
         run: bash scripts/pull-notes.sh
+      # mermaid 服务端渲染(见 _plugins/mermaid.rb)需要 mermaid-cli:Node 运行时 + npm 依赖
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install mermaid-cli
+        run: npm ci
+      # mermaid-cli 内部 puppeteer 需要 Chromium 系统库
+      - name: Install Chromium system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+            libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
+            libxrandr2 libgbm1 libasound2t64
       - name: Build with Jekyll
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
       - name: Upload artifact
