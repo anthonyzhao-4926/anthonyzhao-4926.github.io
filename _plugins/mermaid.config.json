@@ -1,8 +1,14 @@
 {
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Hiragino Sans GB\", \"Noto Sans CJK SC\", \"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
     "themeVariables": {
-        "fontFamily": "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", sans-serif"
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"PingFang SC\", \"Hiragino Sans GB\", \"Noto Sans CJK SC\", \"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "fontSize": "16px",
+        "nodePadding": 20
     },
     "flowchart": {
-        "wrappingWidth": 300
-    }
+        "wrappingWidth": 280,
+        "padding": 20,
+        "diagramPadding": 12
+    },
+    "themeCSS": ".node .label,.edgeLabel,.cluster-label,.label,foreignObject{overflow:visible!important}"
 }
