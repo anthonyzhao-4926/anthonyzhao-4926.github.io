@@ -519,6 +519,7 @@ img {
     max-width: 100%;
     border-radius: 8px;
     border: 1px solid var(--line);
+    cursor: zoom-in;
 }
 
 .post-content blockquote,
@@ -1469,6 +1470,39 @@ img {
     max-width: 100%;
     height: auto;
     margin: 28px auto;
+    cursor: zoom-in;
+}
+
+/* ---------- 图片放大浮层 ---------- */
+.img-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 220;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    background: rgba(27, 27, 31, 0.62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    cursor: zoom-out;
+}
+
+.img-lightbox[hidden] {
+    display: none;
+}
+
+.img-lightbox img {
+    max-width: min(96vw, 1400px);
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    cursor: default;
 }
 
 /* ---------- 无障碍 ---------- */
