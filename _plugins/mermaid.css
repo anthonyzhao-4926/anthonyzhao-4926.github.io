@@ -1,10 +1,18 @@
-/* mermaid 默认给 label / foreignObject 设 overflow:hidden。
-   CJK 字宽被低估时，节点右侧末字会被边框裁掉。导出为 <img> 时
-   也依赖这份写入 SVG 的样式，避免裁剪。 */
+/* mermaid 默认给 label / foreignObject 设 overflow:hidden，
+   CJK 末笔容易被裁。导出为 <img> 时也依赖这份写入 SVG 的样式。
+   标签在 foreignObject 内居中。 */
 .node .label,
 .edgeLabel,
 .cluster-label,
 .label,
 foreignObject {
     overflow: visible !important;
+}
+
+.node .label foreignObject > div,
+.edgeLabel foreignObject > div,
+.cluster-label foreignObject > div {
+    width: 100% !important;
+    box-sizing: border-box;
+    text-align: center !important;
 }

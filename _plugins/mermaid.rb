@@ -24,12 +24,10 @@ module Jekyll
 
     # mermaid 配置（与站点字体保持一致，见同目录 mermaid.config.json）
     CONFIG = File.join(__dir__, 'mermaid.config.json')
-    # 写入 SVG 的补充样式：放开 label overflow，避免右侧文字被边框裁掉
+    # 写入 SVG 的补充样式：放开 overflow，并让标签在节点内居中
     CSS = File.join(__dir__, 'mermaid.css')
     # puppeteer 启动配置（--no-sandbox 等，CI 环境必需，见同目录 puppeteer.config.json）
     PUPPETEER_CONFIG = File.join(__dir__, 'puppeteer.config.json')
-    # CJK 字宽常被低估，导出后再给标签盒 / 节点轮廓补的水平余量（像素）
-    LABEL_PAD_X = 24
 
     # 严格模式：渲染失败即构建失败（GitHub Actions 设置）
     STRICT = ENV['MERMAID_FAIL_ON_ERROR'] == '1'
@@ -125,63 +123,28 @@ module Jekyll
           Jekyll.logger.warn 'Mermaid:', "渲染失败 #{File.basename(output)}（#{theme}）:\n#{stderr}"
           return false
         end
-        unclip_svg_labels(output)
+        pin_svg_size(output)
         Jekyll.logger.info 'Mermaid:', "生成 #{File.basename(output)}"
         true
       end
 
-      # mermaid 量字偏窄时，foreignObject / 节点轮廓会裁掉右侧末字。
-      # 加宽标签盒并左移 translate，使文字仍居中；矩形节点同步加宽；
-      # 圆角（stadium）用 path 描边，水平略放大以免弧边切字。
-      def unclip_svg_labels(path)
+      # mermaid-cli 把根节点写成 width="100%"。作为 <img> 时，
+      # 浏览器会按容器拉满，图本身却仍按 viewBox 靠左画，右侧空一大块。
+      # 这里改成 viewBox 的像素宽高，让图片尺寸等于图形本身。
+      def pin_svg_size(path)
         return unless File.file?(path)
 
-        extra = LABEL_PAD_X
-        half = extra / 2.0
         svg = File.read(path, encoding: 'UTF-8')
+        return unless svg =~ /\bviewBox="(-?[\d.]+)\s+(-?[\d.]+)\s+([\d.]+)\s+([\d.]+)"/
 
-        svg.gsub!(/<g class="label"[^>]*>.*?<\/g>/m) do |group|
-          fo_width = group[/<foreignObject\b[^>]*\bwidth="([\d.]+)"/, 1]
-          next group if fo_width.nil? || fo_width.to_f <= 0
-
-          widened = group.sub(/(<foreignObject\b[^>]*\bwidth=")([\d.]+)(")/) do
-            format('%s%s%s', Regexp.last_match(1), Regexp.last_match(2).to_f + extra, Regexp.last_match(3))
-          end
-          widened.sub(/(transform="translate\()(-?[\d.]+)(,\s*-?[\d.]+\))/) do
-            format('%s%s%s', Regexp.last_match(1), Regexp.last_match(2).to_f - half, Regexp.last_match(3))
-          end
+        view_w = Regexp.last_match(3)
+        view_h = Regexp.last_match(4)
+        svg.sub!(/\s\bwidth="100%"/, %( width="#{view_w}"))
+        if svg =~ /<svg\b[^>]*\bheight="/
+          svg.sub!(/(<svg\b[^>]*\bheight=")[^"]+"/, "\\1#{view_h}\"")
+        else
+          svg.sub!(/<svg\b/, %(<svg height="#{view_h}"))
         end
-
-        svg.gsub!(/<rect class="basic label-container"([^>]*)\/?>/) do |match|
-          attrs = Regexp.last_match(1).sub(%r{/\s*\z}, '')
-          width = attrs[/\bwidth="([\d.]+)"/, 1]
-          x_pos = attrs[/\bx="(-?[\d.]+)"/, 1]
-          next match if width.nil? || x_pos.nil?
-
-          extra_w = extra
-          height = attrs[/\bheight="([\d.]+)"/, 1]
-          extra_w += height.to_f if attrs.include?('rx=') && height
-          updated = attrs.sub(/\bwidth="[\d.]+"/, %(width="#{width.to_f + extra_w}"))
-          updated = updated.sub(/\bx="-?[\d.]+"/, %(x="#{x_pos.to_f - extra_w / 2.0}"))
-          %(<rect class="basic label-container"#{updated}/>)
-        end
-
-        svg.gsub!(/<g class="basic label-container outer-path"(?! transform="scale)/) do
-          '<g class="basic label-container outer-path" transform="scale(1.22, 1)"'
-        end
-
-        svg.sub!(/\bviewBox="(-?[\d.]+)\s+(-?[\d.]+)\s+([\d.]+)\s+([\d.]+)"/) do
-          min_x = Regexp.last_match(1).to_f - extra
-          min_y = Regexp.last_match(2)
-          view_w = Regexp.last_match(3).to_f + extra * 2
-          view_h = Regexp.last_match(4)
-          %(viewBox="#{min_x} #{min_y} #{view_w} #{view_h}")
-        end
-
-        svg.sub!(/max-width:\s*([\d.]+)px/) do
-          format('max-width: %spx', Regexp.last_match(1).to_f + extra * 2)
-        end
-
         File.write(path, svg)
       end
 
