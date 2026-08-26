@@ -3,16 +3,10 @@ layout: default
 ---
 {% assign published_posts = site.posts | where_exp: "p", "p.viewable" %}
 <header class="masthead">
-    <div class="masthead-main">
-        <p class="masthead-kicker">{{ site.tagline }}</p>
-        <h1 class="masthead-title">天青色的时光，<br>安静地落进字里行间。</h1>
-        <p class="masthead-sub">{{ site.description }}</p>
-        <p class="masthead-meta mono">{{ site.time | date: "%Y" }} · <span class="count-published">{{ published_posts.size }}</span><span class="count-all">{{ site.posts.size }}</span> 篇文章 · {{ site.columns.size }} 个专栏</p>
-    </div>
-    <button id="drafts-toggle" class="drafts-toggle" type="button" aria-pressed="false" title="是否展示草稿">
-        <span class="drafts-toggle-label">草稿</span>
-        <span class="drafts-toggle-track" aria-hidden="true"><span class="drafts-toggle-thumb"></span></span>
-    </button>
+    <p class="masthead-kicker">{{ site.tagline }}</p>
+    <h1 class="masthead-title">天青色的时光，<br>安静地落进字里行间。</h1>
+    <p class="masthead-sub">{{ site.description }}</p>
+    <p class="masthead-meta mono">{{ site.time | date: "%Y" }} · <span class="js-count" data-count-published="{{ published_posts | size }}" data-count-all="{{ site.posts | size }}">{{ published_posts | size }}</span> 篇文章 · {{ site.columns.size }} 个专栏</p>
 </header>
 
 <div class="post-list">

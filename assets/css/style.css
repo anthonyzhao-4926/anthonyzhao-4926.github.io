@@ -236,25 +236,16 @@ img {
 
 /* ---------- 首页题头 ---------- */
 .masthead {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
     padding: 64px 0 36px;
     border-bottom: 1px solid var(--line);
-}
-
-.masthead-main {
-    min-width: 0;
-    flex: 1;
 }
 
 .drafts-toggle {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 2px;
-    padding: 5px 6px 5px 12px;
+    height: 34px;
+    padding: 0 8px 0 12px;
     border: 1px solid var(--line);
     background: var(--card);
     color: var(--muted);
@@ -323,13 +314,6 @@ html:not([data-show-drafts]) [data-viewable="false"]:not(.is-current) {
     display: none;
 }
 
-html[data-show-drafts] .count-published {
-    display: none;
-}
-
-html:not([data-show-drafts]) .count-all {
-    display: none;
-}
 
 html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     display: none;
@@ -1483,10 +1467,6 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
 
     .masthead {
         padding: 44px 0 28px;
-    }
-
-    .drafts-toggle {
-        margin-top: 0;
     }
 
     .masthead-sub {

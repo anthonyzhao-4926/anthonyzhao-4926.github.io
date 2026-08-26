@@ -11,7 +11,7 @@ order: 2
     <p class="page-kicker">随笔</p>
     <h1 class="page-title">散落成篇。</h1>
     <p class="page-sub">没进专栏的单篇文字，也各自成篇。</p>
-    <p class="page-meta mono">共 <em class="count-published">{{ essays_published.size }}</em><em class="count-all">{{ essays.size }}</em> 篇</p>
+    <p class="page-meta mono">共 <em class="js-count" data-count-published="{{ essays_published | size }}" data-count-all="{{ essays | size }}">{{ essays_published | size }}</em> 篇</p>
 </header>
 
 <div class="post-list">

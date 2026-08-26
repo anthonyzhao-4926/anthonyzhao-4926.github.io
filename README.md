@@ -61,7 +61,7 @@ title: 我的第一篇文章
 date: 2026-08-23
 tags: [jekyll, 博客]
 column: tech-notes   # 可选：归入某个专栏（填专栏 id，须先在 _columns/ 定义）
-viewable: true       # false 为草稿，默认不展示；首页右上角可打开「草稿」开关查看
+viewable: true       # false 为草稿，默认不展示；顶栏主题按钮右侧的「草稿」开关可查看
 ---
 ```
 
@@ -82,7 +82,7 @@ viewable: true       # false 为草稿，默认不展示；首页右上角可打
 
 ### 可见性
 
-文章 front matter 的 `viewable` 控制是否默认出现在首页、专栏、随笔、归档和搜索里。缺省为 `true`。设为 `false` 的草稿仍会构建，首页右上角的开关可临时展示它们。
+文章 front matter 的 `viewable` 控制是否默认出现在首页、专栏、随笔、归档和搜索里。缺省为 `true`。设为 `false` 的草稿仍会构建，顶栏主题按钮右侧的「草稿」开关可全站临时展示它们。
 
 ### 顶层页面
 

@@ -22,7 +22,7 @@
 <div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_page.url | default: '' }}">
     <aside class="col-left">
         <h2 class="col-left-title"><a href="{{ '/columns/' | relative_url }}">{{ column_title }}</a></h2>
-        <p class="col-left-count mono muted">共 <span class="count-published">{{ published_posts.size }}</span><span class="count-all">{{ column_posts.size }}</span> 篇文章</p>
+        <p class="col-left-count mono muted">共 <span class="js-count" data-count-published="{{ published_posts | size }}" data-count-all="{{ column_posts | size }}">{{ published_posts | size }}</span> 篇文章</p>
         <ul class="col-left-list">
             {% for post in column_posts %}
             <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>

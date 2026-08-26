@@ -21,7 +21,7 @@ order: 1
         <h2 class="cls-title">{{ column.title }}</h2>
         <p class="cls-desc">{{ column.description }}</p>
     </div>
-    <div class="cls-row-meta mono"><span><span class="count-published">{{ pub_posts.size }}</span><span class="count-all">{{ col_posts.size }}</span> 篇</span><span class="cls-arrow">→</span></div>
+    <div class="cls-row-meta mono"><span><span class="js-count" data-count-published="{{ pub_posts | size }}" data-count-all="{{ col_posts | size }}">{{ pub_posts | size }}</span> 篇</span><span class="cls-arrow">→</span></div>
 </a>
 {% endfor %}
 </div>

@@ -17,6 +17,14 @@
         btn.classList.toggle('on', on);
     }
 
+    function syncCounts() {
+        var on = showing();
+        document.querySelectorAll('.js-count').forEach(function (el) {
+            var n = on ? el.getAttribute('data-count-all') : el.getAttribute('data-count-published');
+            if (n != null) el.textContent = n;
+        });
+    }
+
     function setShow(on) {
         if (on) root.setAttribute('data-show-drafts', '');
         else root.removeAttribute('data-show-drafts');
@@ -24,9 +32,11 @@
             localStorage.setItem(STORAGE_KEY, on ? '1' : '0');
         } catch (saveDraftsErr) { /* localStorage 不可用时忽略 */ }
         syncButton();
+        syncCounts();
     }
 
     syncButton();
+    syncCounts();
     if (btn) {
         btn.addEventListener('click', function () {
             setShow(!showing());
