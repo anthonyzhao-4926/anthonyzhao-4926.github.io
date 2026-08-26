@@ -14,13 +14,14 @@ order: 1
 
 <div class="cls-list">
 {% for column in site.columns %}
-{% assign count = site.posts | where: "column", column.title | size %}
-<a class="cls-row" href="{{ column.url | relative_url }}">
+{% assign col_posts = site.posts | where: "column", column.column_id %}
+{% assign pub_posts = col_posts | where_exp: "p", "p.viewable" %}
+<a class="cls-row" href="{{ column.url | relative_url }}" {% if col_posts.size > 0 and pub_posts.size == 0 %}data-viewable="false"{% endif %}>
     <div class="cls-row-main">
         <h2 class="cls-title">{{ column.title }}</h2>
         <p class="cls-desc">{{ column.description }}</p>
     </div>
-    <div class="cls-row-meta mono"><span>{{ count }} 篇</span><span class="cls-arrow">→</span></div>
+    <div class="cls-row-meta mono"><span><span class="count-published">{{ pub_posts.size }}</span><span class="count-all">{{ col_posts.size }}</span> 篇</span><span class="cls-arrow">→</span></div>
 </a>
 {% endfor %}
 </div>

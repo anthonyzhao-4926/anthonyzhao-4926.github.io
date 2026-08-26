@@ -84,6 +84,7 @@ defaults:
     values:
       layout: post
       permalink: /posts/:title/
+      viewable: true
   - scope:
       path: _drafts
       type: drafts
@@ -95,7 +96,7 @@ defaults:
       type: columns
     values:
       layout: column
-      permalink: /columns/:title/
+      permalink: /columns/:name/
 
 # 插件列表（与 Gemfile 保持一致）
 plugins:

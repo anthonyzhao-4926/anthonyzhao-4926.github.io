@@ -83,7 +83,10 @@
             emptyEl.hidden = true;
             return;
         }
-        var hits = (index || []).map(function (p) {
+        var showDrafts = document.documentElement.hasAttribute('data-show-drafts');
+        var hits = (index || []).filter(function (p) {
+            return showDrafts || p.viewable !== false;
+        }).map(function (p) {
             return { p: p, s: score(p, terms) };
         }).filter(function (h) { return h.s > 0; }).sort(function (a, b) { return b.s - a.s; });
 
@@ -96,8 +99,9 @@
         resultsEl.innerHTML = hits.map(function (h) {
             var p = h.p;
             var flag = p.column || '随笔';
+            var draftMark = p.viewable === false ? ' <span class="draft-badge">草稿</span>' : '';
             return '<article class="search-result">' +
-                '<p class="post-flag mono"><span class="flag-dot"></span>' + esc(flag) + '</p>' +
+                '<p class="post-flag mono"><span class="flag-dot"></span>' + esc(flag) + draftMark + '</p>' +
                 '<h3 class="search-title"><a href="' + esc(p.url) + '">' + highlight(p.title, terms) + '</a></h3>' +
                 '<p class="search-snippet">' + snippet(p, terms) + '</p>' +
                 '</article>';

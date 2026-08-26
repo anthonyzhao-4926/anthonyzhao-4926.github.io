@@ -57,7 +57,7 @@ while read -r name url; do
     [ -z "$date" ] && date=$(git -C "$src" log -1 --format=%cs 2>/dev/null || true)
 
     slug="${base%.md}"
-    # 源文件若已有 YAML front matter,取其 title/column/order,正文不再展示这段元数据
+    # 源文件若已有 YAML front matter,取其 title/column/order/viewable,正文不再展示这段元数据
     src_title=$(awk '
       NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
       fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
@@ -83,6 +83,16 @@ while read -r name url; do
       fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
       fm==1 && $0 ~ /^order:[[:space:]]*/ {
         sub(/^order:[[:space:]]*/, "")
+        gsub(/^["'\'']+|["'\'']+$/, "")
+        print
+        exit
+      }
+    ' "$f")
+    src_viewable=$(awk '
+      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+      fm==1 && $0 ~ /^viewable:[[:space:]]*/ {
+        sub(/^viewable:[[:space:]]*/, "")
         gsub(/^["'\'']+|["'\'']+$/, "")
         print
         exit
@@ -118,6 +128,7 @@ while read -r name url; do
       echo "date: $date"
       [ -n "$src_column" ] && echo "column: $src_column"
       [ -n "$src_order" ] && echo "order: $src_order"
+      [ -n "$src_viewable" ] && echo "viewable: $src_viewable"
       echo "---"
       echo ""
       # 去掉源文件 front matter,再改写相对图片引用

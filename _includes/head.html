@@ -3,6 +3,9 @@
 <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
 <meta name="description"
     content="{% if page.description %}{{ page.description }}{% elsif page.excerpt %}{{ page.excerpt | strip_html | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+{% if page.viewable == false %}
+<meta name="robots" content="noindex">
+{% endif %}
 <link rel="canonical" href="{{ page.url | absolute_url }}">
 <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
 <meta property="og:type" content="{% if page.date %}article{% else %}website{% endif %}">
@@ -15,5 +18,10 @@
         var saved = localStorage.getItem('theme');
         var theme = saved || 'light';
         document.documentElement.setAttribute('data-theme', theme);
+        try {
+            if (localStorage.getItem('show-drafts') === '1') {
+                document.documentElement.setAttribute('data-show-drafts', '');
+            }
+        } catch (showDraftsInitErr) { /* localStorage 不可用时忽略 */ }
     })();
 </script>

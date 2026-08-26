@@ -7,7 +7,8 @@ layout: null
   "title": {{ post.title | jsonify }},
   "url": {{ post.url | relative_url | jsonify }},
   "date": {{ post.date | date: "%Y-%m-%d" | jsonify }},
-  "column": {{ post.column | default: "" | jsonify }},
+  "column": {{ post.column_title | default: post.column | default: "" | jsonify }},
+  "viewable": {{ post.viewable | jsonify }},
   "excerpt": {{ post.excerpt | strip_html | strip_newlines | jsonify }},
   "content": {{ post.content | strip_html | strip_newlines | jsonify }}
 }{% unless forloop.last %},{% endunless %}

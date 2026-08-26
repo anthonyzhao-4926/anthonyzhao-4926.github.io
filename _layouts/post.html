@@ -7,7 +7,7 @@ layout: default
 <div class="post-shell">
     <article class="post toc-source">
         <header class="post-header">
-            <p class="post-flag mono"><span class="flag-dot"></span>随笔</p>
+            <p class="post-flag mono"><span class="flag-dot"></span>随笔{% unless page.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</p>
             <h1 class="post-title">{{ page.title }}</h1>
             <p class="post-meta mono">
                 <time datetime="{{ page.date | date: " %Y-%m-%d" }}">{{ page.date | date: "%Y-%m-%d" }}</time>

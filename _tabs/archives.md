@@ -9,10 +9,12 @@ nav: false
 
 {% assign grouped = site.posts | group_by_exp: "post", "post.date | date: '%Y-%m'" %}
 {% for group in grouped %}
-## {{ group.name }}
-
+<section class="archive-month">
+<h2>{{ group.name }}</h2>
+<ul>
 {% for post in group.items %}
-- [{{ post.title }}]({{ post.url | relative_url }}) · {{ post.date | date: "%Y-%m-%d" }}
+<li data-viewable="{{ post.viewable }}"><a href="{{ post.url | relative_url }}">{{ post.title }}</a>{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %} · {{ post.date | date: "%Y-%m-%d" }}</li>
 {% endfor %}
-
+</ul>
+</section>
 {% endfor %}

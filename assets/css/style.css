@@ -236,8 +236,103 @@ img {
 
 /* ---------- 首页题头 ---------- */
 .masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
     padding: 64px 0 36px;
     border-bottom: 1px solid var(--line);
+}
+
+.masthead-main {
+    min-width: 0;
+    flex: 1;
+}
+
+.drafts-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+    padding: 5px 6px 5px 12px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--muted);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    flex-shrink: 0;
+    transition: color .2s, border-color .2s, background .2s;
+}
+
+.drafts-toggle:hover,
+.drafts-toggle[aria-pressed="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.drafts-toggle[aria-pressed="true"] {
+    background: var(--accent-soft);
+}
+
+.drafts-toggle-track {
+    position: relative;
+    width: 28px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--line-strong);
+    transition: background .2s;
+}
+
+.drafts-toggle[aria-pressed="true"] .drafts-toggle-track {
+    background: var(--accent);
+}
+
+.drafts-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: var(--shadow);
+    transition: transform .2s ease;
+}
+
+.drafts-toggle[aria-pressed="true"] .drafts-toggle-thumb {
+    transform: translateX(12px);
+}
+
+.draft-badge {
+    display: inline-block;
+    margin-left: 2px;
+    padding: 0 5px;
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    color: var(--muted);
+    vertical-align: 1px;
+}
+
+html:not([data-show-drafts]) [data-viewable="false"]:not(.is-current) {
+    display: none;
+}
+
+html[data-show-drafts] .count-published {
+    display: none;
+}
+
+html:not([data-show-drafts]) .count-all {
+    display: none;
+}
+
+html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
+    display: none;
 }
 
 .masthead-kicker {
@@ -1388,6 +1483,10 @@ img {
 
     .masthead {
         padding: 44px 0 28px;
+    }
+
+    .drafts-toggle {
+        margin-top: 0;
     }
 
     .masthead-sub {

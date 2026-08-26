@@ -1,26 +1,31 @@
 {% if page.column %}
-{% assign column_title = page.column %}
+{% assign column_id = page.column %}
 {% assign current_post = page %}
 {% else %}
-{% assign column_title = page.title %}
+{% assign column_id = page.column_id %}
 {% assign current_post = nil %}
 {% endif %}
 
-{% assign column_posts = site.posts | where: "column", column_title %}
+{% assign column_posts = site.posts | where: "column", column_id %}
 {% assign ordered = column_posts | where_exp: "p", "p.order" | sort: "order" %}
 {% assign rest = column_posts | where_exp: "p", "p.order == nil" %}
 {% assign column_posts = ordered | concat: rest %}
+{% assign published_posts = column_posts | where_exp: "p", "p.viewable" %}
+{% if current_post == nil %}
+{% assign current_post = published_posts | first %}
 {% if current_post == nil %}{% assign current_post = column_posts | first %}{% endif %}
+{% endif %}
 
-{% assign column_page = site.columns | where: "title", column_title | first %}
+{% assign column_page = site.columns | where: "column_id", column_id | first %}
+{% assign column_title = column_page.title | default: page.title | default: column_id %}
 
 <div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_page.url | default: '' }}">
     <aside class="col-left">
         <h2 class="col-left-title"><a href="{{ '/columns/' | relative_url }}">{{ column_title }}</a></h2>
-        <p class="col-left-count mono muted">共 {{ column_posts.size }} 篇文章</p>
+        <p class="col-left-count mono muted">共 <span class="count-published">{{ published_posts.size }}</span><span class="count-all">{{ column_posts.size }}</span> 篇文章</p>
         <ul class="col-left-list">
             {% for post in column_posts %}
-            <li><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}</a></li>
+            <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>
             {% endfor %}
             {% if column_posts.size == 0 %}
             <li class="muted">暂无文章</li>
@@ -30,14 +35,14 @@
 
     <article class="col-main">
         {% if current_post %}
-        {% if current_post.column %}{% assign flag = current_post.column %}{% else %}{% assign flag = "随笔" %}{% endif %}
+        {% if current_post.column %}{% assign flag = current_post.column_title | default: current_post.column %}{% else %}{% assign flag = "随笔" %}{% endif %}
         <div class="toc-source">
             <header class="post-header">
-                <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}</p>
+                <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}{% unless current_post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</p>
                 <h1 class="post-title">{{ current_post.title }}</h1>
                 <p class="post-meta mono">
                     <time datetime="{{ current_post.date | date: "%Y-%m-%d" }}">{{ current_post.date | date: "%Y-%m-%d" }}</time>
-                    {% if current_post.column %}<span class="sep">·</span><a href="{{ column_page.url | relative_url }}">{{ current_post.column }}</a>{% endif %}
+                    {% if current_post.column %}<span class="sep">·</span><a href="{{ column_page.url | relative_url }}">{{ column_title }}</a>{% endif %}
                 </p>
             </header>
             <div class="post-content">
@@ -63,7 +68,7 @@
             <path d="M15 3h6v6"></path>
             <path d="M9 21H3v-6"></path>
             <path d="M21 3l-7 7"></path>
-            <path d="M3 21l7-7"></path>
+            <path d="M3 21l7 7"></path>
         </svg>
         <span class="label">全宽</span>
     </button>

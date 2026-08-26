@@ -60,23 +60,29 @@
 title: 我的第一篇文章
 date: 2026-08-23
 tags: [jekyll, 博客]
-column: 技术学习   # 可选：归入某个专栏（须先在 _columns/ 定义）
+column: tech-notes   # 可选：归入某个专栏（填专栏 id，须先在 _columns/ 定义）
+viewable: true       # false 为草稿，默认不展示；首页右上角可打开「草稿」开关查看
 ---
 ```
 
 ### 专栏
 
-1. 在 `_columns/` 下新建专栏定义（`order` 控制显示顺序）：
+1. 在 `_columns/` 下新建专栏定义（`title` 用于页面展示，`id` 供文章归属，`order` 控制显示顺序）：
 
    ```yaml
    ---
    title: 技术学习
+   id: tech-notes
    description: 技术学习与踩坑记录
    order: 2
    ---
    ```
 
-2. 文章 front matter 里写 `column: 技术学习` 即归入该专栏（每篇一个专栏）。同专栏文章可用 `order` 手动排序（有 `order` 的排在前面，其余按时间）。
+2. 文章 front matter 里写 `column: tech-notes`（专栏 `id`）即归入该专栏（每篇一个专栏）。同专栏文章可用 `order` 手动排序（有 `order` 的排在前面，其余按时间）。
+
+### 可见性
+
+文章 front matter 的 `viewable` 控制是否默认出现在首页、专栏、随笔、归档和搜索里。缺省为 `true`。设为 `false` 的草稿仍会构建，首页右上角的开关可临时展示它们。
 
 ### 顶层页面
 
