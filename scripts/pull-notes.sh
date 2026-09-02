@@ -113,13 +113,24 @@ while read -r name url; do
     # 图片资源:优先拷贝该 md 所在目录的 assets(保持相对结构),引用改写为对应绝对路径;
     # 无本地 assets 时回退到仓库根 assets(循环外已平铺拷贝到 /assets/notes/<name>/)
     md_assets="$(dirname "$f")/assets"
+    root_img_prefix="/assets/notes/$name"
     if [ "$rel_dir" != "." ] && [ -d "$md_assets" ]; then
       assets_out="$ASSETS_BASE/$name/$rel_dir/assets"
       mkdir -p "$assets_out"
       cp -R "$md_assets"/. "$assets_out"/
       img_prefix="/assets/notes/$name/$rel_dir/assets"
     else
-      img_prefix="/assets/notes/$name"
+      img_prefix="$root_img_prefix"
+    fi
+    # 仓库根 assets 场景:md 里的引用写作 ../assets/ 或 ../../assets/(../ 个数=md 所在目录的层数),需按层数改写为根 assets 的部署绝对路径,
+    # 否则相对链接会残留到页面里解析失败
+    rel_sed=""
+    if [ "$rel_dir" != "." ]; then
+      depth=$(awk -F/ '{ print NF }' <<<"$rel_dir")
+      ups=""
+      i=0
+      while [ "$i" -lt "$depth" ]; do ups="${ups}\\.\\./"; i=$((i + 1)); done
+      rel_sed="s|](${ups}assets/|]($root_img_prefix/|g"
     fi
 
     {
@@ -144,7 +155,7 @@ while read -r name url; do
         }
         { print }
         END { if (in_fm) flush_buf() }
-      ' "$f" | sed "s|\](assets/|]($img_prefix/|g"
+      ' "$f" | sed "s|\](assets/|]($img_prefix/|g" | sed "$rel_sed"
     } > "$out_file"
 
     count=$((count + 1))
