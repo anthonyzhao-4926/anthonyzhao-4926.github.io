@@ -957,16 +957,116 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     color: var(--accent);
 }
 
+/* ---------- 专栏总览：顶部标签条（默认显示第一行，超出折叠） ---------- */
+.cls-tagbar {
+    padding: 22px 0 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.cls-tagwrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px 10px;
+    overflow: hidden;
+    transition: max-height .28s ease;
+}
+
+.tag-f {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px 5px 13px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+    transition: color .2s, border-color .2s, background-color .2s;
+    white-space: nowrap;
+}
+
+.tag-f .tag-count {
+    flex-shrink: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: .03em;
+    transition: color .2s, background-color .2s;
+}
+
+.tag-f:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.tag-f.is-on {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    font-weight: 500;
+}
+
+.tag-f.is-on .tag-count {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* “更多标签 / 收起”按钮：仅当标签溢出一行时出现 */
+.cls-tagmore {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 12px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: color .2s;
+}
+
+.cls-tagmore:hover {
+    color: var(--accent);
+}
+
+.cls-tagmore[hidden] {
+    display: none;
+}
+
+.cls-tagmore .caret {
+    font-size: 10px;
+    transition: transform .28s ease;
+}
+
+.cls-tagmore.is-open .caret {
+    transform: rotate(180deg);
+}
+
+/* ---------- 专栏总览：列表 ---------- */
 .cls-list {
-    padding: 12px 0 0;
+    padding: 16px 0 0;
 }
 
 .cls-row {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 32px;
-    padding: 19px 4px;
+    padding: 21px 4px;
     border-bottom: 1px solid var(--line);
 }
 
@@ -974,16 +1074,40 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     border-bottom: none;
 }
 
+.cls-row.is-off {
+    display: none;
+}
+
+.cls-row.row-in {
+    animation: row-in .3s ease;
+}
+
+@keyframes row-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
 .cls-row-main {
     min-width: 0;
 }
 
 .cls-title {
-    margin: 0 0 5px;
+    margin: 0 0 6px;
     font-family: var(--font-display);
     font-size: 21px;
     font-weight: 600;
     line-height: 1.4;
+}
+
+.cls-title a {
+    color: var(--text);
     background-image: linear-gradient(var(--accent), var(--accent));
     background-repeat: no-repeat;
     background-size: 0 1px;
@@ -991,7 +1115,7 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     transition: color .2s, background-size .25s ease;
 }
 
-.cls-row:hover .cls-title {
+.cls-row:hover .cls-title a {
     color: var(--accent);
     background-size: 100% 1px;
 }
@@ -1000,6 +1124,38 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     margin: 0;
     font-size: 13.5px;
     color: var(--muted);
+}
+
+/* 行内小标签 */
+.cls-tagline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 11px;
+}
+
+.tag-chip {
+    padding: 2px 11px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.7;
+    cursor: pointer;
+    transition: color .2s, border-color .2s, background-color .2s;
+}
+
+.tag-chip:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.tag-chip.is-on {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
 }
 
 .cls-row-meta {

@@ -16,16 +16,23 @@
 {% if current_post == nil %}{% assign current_post = column_posts | first %}{% endif %}
 {% endif %}
 
-{% assign column_page = site.columns | where: "column_id", column_id | first %}
+{% assign column_page = site.data.columns | where: "id", column_id | first %}
 {% assign column_title = column_page.title | default: page.title | default: column_id %}
+{% if column_page %}{% assign column_url = '/columns/' | append: column_page.id | append: '/' | relative_url %}{% else
+%}{% assign column_url = '' %}{% endif %}
 
-<div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_page.url | default: '' }}">
+<div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_url }}">
     <aside class="col-left">
         <h2 class="col-left-title"><a href="{{ '/columns/' | relative_url }}">{{ column_title }}</a></h2>
-        <p class="col-left-count mono muted">共 <span class="js-count" data-count-published="{{ published_posts | size }}" data-count-all="{{ column_posts | size }}">{{ published_posts | size }}</span> 篇文章</p>
+        <p class="col-left-count mono muted">共 <span class="js-count"
+                data-count-published="{{ published_posts | size }}" data-count-all="{{ column_posts | size }}">{{
+                published_posts | size }}</span> 篇文章</p>
         <ul class="col-left-list">
             {% for post in column_posts %}
-            <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>
+            <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {% endif %}><a
+                    href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url==current_post.url %}class="current"
+                    {% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
+                    endunless %}</a></li>
             {% endfor %}
             {% if column_posts.size == 0 %}
             <li class="muted">暂无文章</li>
@@ -35,14 +42,18 @@
 
     <article class="col-main">
         {% if current_post %}
-        {% if current_post.column %}{% assign flag = current_post.column_title | default: current_post.column %}{% else %}{% assign flag = "随笔" %}{% endif %}
+        {% if current_post.column %}{% assign flag = current_post.column_title | default: current_post.column %}{% else
+        %}{% assign flag = "随笔" %}{% endif %}
         <div class="toc-source">
             <header class="post-header">
-                <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}{% unless current_post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</p>
+                <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}{% unless current_post.viewable %}
+                    <span class="draft-badge">草稿</span>{% endunless %}</p>
                 <h1 class="post-title">{{ current_post.title }}</h1>
                 <p class="post-meta mono">
-                    <time datetime="{{ current_post.date | date: "%Y-%m-%d" }}">{{ current_post.date | date: "%Y-%m-%d" }}</time>
-                    {% if current_post.column %}<span class="sep">·</span><a href="{{ column_page.url | relative_url }}">{{ column_title }}</a>{% endif %}
+                    <time datetime="{{ current_post.date | date: " %Y-%m-%d" }}">{{ current_post.date | date: "%Y-%m-%d"
+                        }}</time>
+                    {% if current_post.column %}<span class="sep">·</span><a href="{{ column_url }}">{{ column_title
+                        }}</a>{% endif %}
                 </p>
             </header>
             <div class="post-content">

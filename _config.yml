@@ -21,6 +21,8 @@ exclude:
   - preview-column.html
   - preview-columns.html
   - preview-tags.html
+  # Obsidian 模板目录（笔记编辑辅助，不参与构建）
+  - obsidian_template
   - scripts
   - README.md
   - Gemfile
@@ -60,13 +62,9 @@ kramdown:
     span:
       line_numbers: false
 
-# _tabs 顶层页面集合 + _columns 专栏集合
+# _tabs 顶层页面集合（专栏已改由 _data/columns.yml 配置，落地页见 _plugins/column_pages.rb）
 collections:
   tabs:
-    output: true
-    sort_by: order
-  # 专栏集合：_columns/ 下的每个文件 = 一个专栏
-  columns:
     output: true
     sort_by: order
 
@@ -91,12 +89,6 @@ defaults:
     values:
       layout: post
       comments: false
-  - scope:
-      path: ""
-      type: columns
-    values:
-      layout: column
-      permalink: /columns/:name/
 
 # 插件列表（与 Gemfile 保持一致）
 plugins:

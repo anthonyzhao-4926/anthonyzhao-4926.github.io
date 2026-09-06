@@ -22,10 +22,9 @@
 ├── _posts/                  # 📝 博客文章（命名：YYYY-MM-DD-标题.md）
 │   └── notes/               # 由 scripts/pull-notes.sh 生成的外部仓库笔记（不入库）
 ├── _tabs/                   # 顶层页面（nav: false 的如归档页不显示在导航）
-├── _columns/                # 专栏定义（每个文件 = 一个专栏）
 ├── _layouts/                # 布局：default / home / post / page / column
 ├── _includes/               # 页面片段：header / head / column-shell
-├── _data/                   # 站点数据（contact.yml 社交链接）
+├── _data/                   # 站点数据（columns.yml 专栏配置、contact.yml 社交链接）
 ├── assets/                  # 样式与脚本（style.css、theme.js、search.js、toc.js）
 ├── scripts/                 # 构建辅助脚本（pull-notes.sh、notes-repos.txt）
 ├── search.json              # 搜索索引数据源（Jekyll 渲染为 /search.json）
@@ -60,22 +59,20 @@
 title: 我的第一篇文章
 date: 2026-08-23
 tags: [jekyll, 博客]
-column: tech-notes   # 可选：归入某个专栏（填专栏 id，须先在 _columns/ 定义）
+column: tech-notes   # 可选：归入某个专栏（填专栏 id，须先在 _data/columns.yml 定义）
 viewable: true       # false 为草稿，默认不展示；顶栏主题按钮右侧的「草稿」开关可查看
 ---
 ```
 
 ### 专栏
 
-1. 在 `_columns/` 下新建专栏定义（`title` 用于页面展示，`id` 供文章归属，`order` 控制显示顺序）：
+1. 在 `_data/columns.yml` 追加一条记录（`title` 用于页面展示，`id` 供文章归属，`order` 控制显示顺序；构建时会自动为每个专栏生成落地页 `/columns/<id>/`）：
 
    ```yaml
-   ---
-   title: 技术学习
-   id: tech-notes
-   description: 技术学习与踩坑记录
-   order: 2
-   ---
+   - id: tech-notes
+     title: 技术学习
+     description: 技术学习与踩坑记录
+     order: 2
    ```
 
 2. 文章 front matter 里写 `column: tech-notes`（专栏 `id`）即归入该专栏（每篇一个专栏）。同专栏文章可用 `order` 手动排序（有 `order` 的排在前面，其余按时间）。
@@ -127,7 +124,7 @@ bash scripts/pull-notes.sh   # 会临时 clone 所有仓库并生成
 | `title` / `tagline` / `description` | 站点名称与副标题，显示于首页页眉 |
 | `url` | 站点域名，须与 `CNAME` 一致 |
 | `paginate` | 首页每页文章数 |
-| `collections.tabs` / `collections.columns` | 顶层页面与专栏集合 |
+| `collections.tabs` | 顶层页面集合（专栏由 `_data/columns.yml` 管理，无需在 collections 注册） |
 | `_data/contact.yml` | 侧边栏社交链接（github / twitter / email / rss） |
 | `timezone` / `lang` | 时区与语言 |
 

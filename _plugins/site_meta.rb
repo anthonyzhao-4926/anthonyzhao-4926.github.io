@@ -1,8 +1,8 @@
-# 专栏 id / 展示名，以及文章 viewable 归一
+# 文章 viewable 归一 + 专栏标题补充
 #
-# 专栏 front matter 的 id 会与 Jekyll 内置 page.id（文档路径）冲突，
-# 这里抄到 column_id，供模板按 id 归属文章、用 title 展示。
-# 文章 viewable 缺省视为可见；不可见的不进 sitemap。
+# 专栏配置集中在 _data/columns.yml（落地页由 _plugins/column_pages.rb 生成），
+# 这里把文章 front matter 的 column id 映射成展示用的 column_title。
+# viewable 缺省视为可见；不可见的不进 sitemap。
 
 module Jekyll
   class SiteMetaGenerator < Generator
@@ -21,15 +21,13 @@ module Jekyll
     private
 
     def index_columns(site)
-      columns = site.collections['columns']
+      columns = site.data['columns']
       return {} unless columns
 
       by_id = {}
-      columns.docs.each do |doc|
-        col_id = doc.data['id'].to_s.strip
-        col_id = File.basename(doc.path, '.*') if col_id.empty?
-        doc.data['column_id'] = col_id
-        by_id[col_id] = doc.data['title'].to_s
+      columns.each do |col|
+        col_id = col['id'].to_s.strip
+        by_id[col_id] = col['title'].to_s unless col_id.empty?
       end
       by_id
     end
