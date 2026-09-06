@@ -957,103 +957,203 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     color: var(--accent);
 }
 
-/* ---------- 专栏总览：顶部标签条（默认显示第一行，超出折叠） ---------- */
-.cls-tagbar {
-    padding: 22px 0 16px;
-    border-bottom: 1px solid var(--line);
+/* ---------- 专栏总览：左侧标签侧栏（贴页边，默认收起） ---------- */
+.cols-page {
+    transition: transform .32s ease;
 }
 
-.cls-tagwrap {
+/* 宽屏：面板展开时正文右移半幅，避免遮挡 */
+@media (min-width: 1120px) {
+    body.side-open .cols-page {
+        transform: translateX(118px);
+    }
+}
+
+/* 整列面板：贴视口最左，从导航栏下沿延展到底部 */
+.side-panel {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    width: 236px;
+    background: var(--bg);
+    border-right: 1px solid var(--line);
+    transform: translateX(-100%);
+    transition: transform .32s ease;
+    z-index: 96;
     display: flex;
-    flex-wrap: wrap;
-    gap: 9px 10px;
-    overflow: hidden;
-    transition: max-height .28s ease;
+    flex-direction: column;
 }
 
-.tag-f {
-    display: inline-flex;
+body.side-open .side-panel {
+    transform: translateX(0);
+}
+
+.side-inner {
+    padding: 30px 24px 36px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex: 1;
+}
+
+.side-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.side-head {
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 5px 14px 5px 13px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: transparent;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 13.5px;
-    line-height: 1.6;
-    text-align: left;
-    cursor: pointer;
-    transition: color .2s, border-color .2s, background-color .2s;
-    white-space: nowrap;
+    justify-content: space-between;
+    gap: 10px;
 }
 
-.tag-f .tag-count {
-    flex-shrink: 0;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: .03em;
-    transition: color .2s, background-color .2s;
+.side-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: .02em;
 }
 
-.tag-f:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-}
-
-.tag-f.is-on {
-    color: var(--accent);
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    font-weight: 500;
-}
-
-.tag-f.is-on .tag-count {
-    background: var(--accent);
-    color: #fff;
-}
-
-/* “更多标签 / 收起”按钮：仅当标签溢出一行时出现 */
-.cls-tagmore {
+.side-close {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    margin-top: 12px;
-    padding: 0;
+    margin: 0 -4px 0 0;
+    padding: 6px 8px;
     border: none;
     background: transparent;
     color: var(--muted);
-    font-family: var(--font-body);
-    font-size: 12.5px;
-    letter-spacing: .06em;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: .08em;
     cursor: pointer;
     transition: color .2s;
 }
 
-.cls-tagmore:hover {
+.side-close:hover {
     color: var(--accent);
 }
 
-.cls-tagmore[hidden] {
+.side-close svg {
+    width: 12px;
+    height: 12px;
+}
+
+.side-sub {
+    margin: 6px 0 0;
+    font-size: 11.5px;
+    letter-spacing: .05em;
+    color: var(--muted);
+}
+
+.side-tags-list {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+}
+
+.side-tag {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px 9px 12px;
+    border: none;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+    transition: color .2s, background-color .2s, padding-left .2s;
+}
+
+.side-tag:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding-left: 16px;
+}
+
+.side-tag.is-on {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+    padding-left: 10px;
+    font-weight: 500;
+}
+
+.side-tag-cnt {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    letter-spacing: .03em;
+    color: var(--line-strong);
+    transition: color .2s;
+}
+
+.side-tag:hover .side-tag-cnt,
+.side-tag.is-on .side-tag-cnt {
+    color: var(--accent);
+}
+
+/* 收起态把手：贴视口最左、导航栏下沿起，竖排 */
+.rail-btn {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    z-index: 92;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    writing-mode: vertical-rl;
+    padding: 26px 12px;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: .34em;
+    cursor: pointer;
+    transition: color .2s, background-color .2s;
+}
+
+.rail-btn:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.rail-dot {
+    width: 5px;
+    height: 5px;
+    margin-top: 20px;
+    border-radius: 50%;
+    background: var(--line-strong);
+    transition: background-color .2s;
+}
+
+.rail-btn.has-filter .rail-dot {
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+body.side-open .rail-btn {
     display: none;
 }
 
-.cls-tagmore .caret {
-    font-size: 10px;
-    transition: transform .28s ease;
-}
+/* 窄屏：隐藏侧栏与把手（行内小标签仍可过滤）；与右移断点 1120px 对齐，避免面板遮挡正文 */
+@media (max-width: 1120px) {
 
-.cls-tagmore.is-open .caret {
-    transform: rotate(180deg);
+    .rail-btn,
+    .side-panel {
+        display: none;
+    }
 }
 
 /* ---------- 专栏总览：列表 ---------- */

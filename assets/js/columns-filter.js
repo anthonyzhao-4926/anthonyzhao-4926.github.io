@@ -1,24 +1,43 @@
-/* 专栏总览页：标签筛选 + 顶部标签条折叠（仅 /columns/ 存在 #clist 时生效） */
+/* 专栏总览页：左侧标签侧栏（默认收起）+ 标签过滤（仅 /columns/ 存在 #side-panel 时生效） */
 (function () {
     'use strict';
 
+    var panel = document.getElementById('side-panel');
+    var rail = document.getElementById('side-rail');
+    var closeBtn = document.getElementById('side-close');
     var clist = document.getElementById('clist');
-    var tagwrap = document.getElementById('tagwrap');
-    if (!clist || !tagwrap) return;
+    if (!panel || !rail || !closeBtn || !clist) return;
 
-    var tagmore = document.getElementById('tagmore');
+    var sideList = document.getElementById('side-list');
     var metaCols = document.getElementById('meta-cols');
 
     var rows = Array.prototype.slice.call(clist.querySelectorAll('.cls-row'));
     var totalCols = rows.length;
     var curTag = 'all';
     var shownRows = rows.slice();
-    var tagOpen = false;
-    var rowH = 0;
 
     function tagsOf(row) {
         return (row.getAttribute('data-tags') || '').split(' ').filter(function (t) { return t; });
     }
+
+    /* ---------- 侧栏展开 / 收起 ---------- */
+    function openSide() {
+        document.body.classList.add('side-open');
+        rail.setAttribute('aria-expanded', 'true');
+        rail.title = '收起标签筛选';
+    }
+
+    function closeSide() {
+        document.body.classList.remove('side-open');
+        rail.setAttribute('aria-expanded', 'false');
+        rail.title = '展开标签筛选';
+    }
+
+    rail.addEventListener('click', openSide);
+    closeBtn.addEventListener('click', closeSide);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeSide();
+    });
 
     /* ---------- 过滤 ---------- */
     function apply() {
@@ -39,11 +58,13 @@
         });
         shownRows = next;
 
-        tagwrap.querySelectorAll('.tag-f').forEach(function (b) {
-            var on = b.getAttribute('data-tag') === curTag;
-            b.classList.toggle('is-on', on);
-            b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
+        if (sideList) {
+            sideList.querySelectorAll('.side-tag').forEach(function (b) {
+                var on = b.getAttribute('data-tag') === curTag;
+                b.classList.toggle('is-on', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+        }
         clist.querySelectorAll('.tag-chip').forEach(function (c) {
             c.classList.toggle('is-on', curTag !== 'all' && c.getAttribute('data-tag') === curTag);
         });
@@ -51,67 +72,16 @@
         if (metaCols) {
             metaCols.textContent = curTag === 'all' ? String(totalCols) : shownRows.length + ' / ' + totalCols;
         }
+        rail.classList.toggle('has-filter', curTag !== 'all');
     }
 
-    /* ---------- 折叠：一行放得下 → 无按钮；放不下 → 只露一行 + 「更多标签」 ---------- */
-    function syncFold() {
-        var first = tagwrap.querySelector('.tag-f');
-        if (!first) return;
-        rowH = first.offsetHeight;
-        tagwrap.style.maxHeight = ''; /* 放开以便量取完整高度 */
-        var overflow = tagwrap.scrollHeight > rowH + 2;
-        if (!overflow) {
-            if (tagmore) {
-                tagmore.hidden = true;
-                tagmore.classList.remove('is-open');
-                tagmore.setAttribute('aria-expanded', 'false');
-            }
-            return;
-        }
-        if (!tagmore) return;
-        tagmore.hidden = false;
-        tagmore.innerHTML = '更多标签<span class="caret">▾</span>';
-        tagmore.classList.remove('is-open');
-        tagwrap.style.maxHeight = rowH + 'px';
-    }
-
-    function toggleFold() {
-        if (!tagmore) return;
-        tagOpen = !tagOpen;
-        if (tagOpen) {
-            tagwrap.style.maxHeight = tagwrap.scrollHeight + 'px';
-            tagmore.innerHTML = '收起<span class="caret">▾</span>';
-            tagmore.classList.add('is-open');
-            tagmore.setAttribute('aria-expanded', 'true');
-        } else {
-            tagwrap.style.maxHeight = rowH + 'px';
-            tagmore.innerHTML = '更多标签<span class="caret">▾</span>';
-            tagmore.classList.remove('is-open');
-            tagmore.setAttribute('aria-expanded', 'false');
-        }
-    }
-
-    /* ---------- 事件：标签胶囊与行内小标签共用委托 ---------- */
     function onPick(e) {
-        var el = e.target.closest ? e.target.closest('.tag-f, .tag-chip') : null;
+        var el = e.target.closest ? e.target.closest('.side-tag, .tag-chip') : null;
         if (!el || !el.getAttribute('data-tag')) return;
         curTag = curTag === el.getAttribute('data-tag') ? 'all' : el.getAttribute('data-tag');
         apply();
     }
 
-    tagwrap.addEventListener('click', onPick);
+    if (sideList) sideList.addEventListener('click', onPick);
     clist.addEventListener('click', onPick);
-    if (tagmore) tagmore.addEventListener('click', toggleFold);
-
-    /* 视口变化后重新判断折叠 */
-    var resizeTimer = null;
-    window.addEventListener('resize', function () {
-        if (resizeTimer) clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function () {
-            tagOpen = false;
-            syncFold();
-        }, 120);
-    });
-
-    syncFold();
 })();

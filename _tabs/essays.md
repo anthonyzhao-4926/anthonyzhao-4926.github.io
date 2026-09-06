@@ -21,7 +21,7 @@ order: 2
             <span class="vdate">{{ post.date | date: "%m·%d" }}</span>
         </div>
         <div class="post-body">
-            <p class="post-flag mono"><span class="flag-dot"></span>随笔{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</p>
+            {% unless post.viewable %}<p class="post-flag mono"><span class="flag-dot"></span><span class="draft-badge">草稿</span></p>{% endunless %}
             <h2 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
             {% if post.excerpt %}<p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>{% endif %}
         </div>

@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>专栏总览 · 左侧标签侧栏预览（默认收起 · 贴页边）</title>
+    <style>
+        /* ============ 天青·水 变量（与线上 style.css 一致） ============ */
+        :root {
+            --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+            --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1f2c2b;
+            --muted: #7c8f8c;
+            --accent: #379a90;
+            --accent-soft: rgba(55, 154, 144, 0.10);
+            --cinnabar: #e0825a;
+            --line: #e8eeee;
+            --line-strong: #d4dfdc;
+            --code-bg: #f4f7f6;
+            --card: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.86);
+            --shadow: 0 1px 2px rgba(31, 44, 43, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1b1b1f;
+            --text: #dfdfd6;
+            --muted: #98989f;
+            --accent: #57b4a6;
+            --accent-soft: rgba(87, 180, 166, 0.12);
+            --cinnabar: #e8926f;
+            --line: #2b2b31;
+            --line-strong: #3a3a42;
+            --code-bg: #222226;
+            --card: #232327;
+            --header-bg: rgba(27, 27, 31, 0.82);
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        /* ============ 基础 ============ */
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.9;
+            transition: background-color .3s ease, color .3s ease;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        /* ============ 顶部导航（与线上一致） ============ */
+        .site-header {
+            border-bottom: 1px solid var(--line);
+            background: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            height: 64px;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        .site-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-size: 19px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: var(--text);
+            white-space: nowrap;
+            transition: color .2s;
+        }
+
+        .site-title .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--cinnabar);
+            flex-shrink: 0;
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .site-nav {
+            display: flex;
+            gap: 2px;
+            flex: 1;
+            justify-content: flex-end;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+
+        .site-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .site-nav a {
+            position: relative;
+            color: var(--muted);
+            font-size: 14.5px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: color .2s;
+        }
+
+        .site-nav a::after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 2px;
+            height: 1px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .25s ease;
+        }
+
+        .site-nav a:hover {
+            color: var(--text);
+        }
+
+        .site-nav a.active {
+            color: var(--accent);
+        }
+
+        .site-nav a.active::after {
+            transform: scaleX(1);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--muted);
+            border-radius: 50%;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: color .2s, border-color .2s, transform .2s;
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: rotate(15deg);
+        }
+
+        .theme-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .page-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px 90px;
+            min-height: calc(100vh - 64px);
+            transition: transform .32s ease;
+        }
+
+        /* 宽屏：侧栏展开时正文右移半幅，保持居中于剩余空间 */
+        @media (min-width: 1420px) {
+            body.side-open .page-wrap {
+                transform: translateX(118px);
+            }
+        }
+
+        /* ============ 页头 ============ */
+        .page-head {
+            padding: 56px 0 40px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 8px;
+        }
+
+        .page-kicker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 16px;
+            font-size: 12px;
+            letter-spacing: .32em;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .page-kicker::before {
+            content: "";
+            width: 26px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .page-title {
+            margin: 0 0 12px;
+            font-family: var(--font-display);
+            font-size: clamp(28px, 5vw, 38px);
+            font-weight: 600;
+            line-height: 1.35;
+            letter-spacing: .02em;
+        }
+
+        .page-sub {
+            margin: 0 0 20px;
+            font-size: 16px;
+            color: var(--muted);
+            max-width: 36em;
+        }
+
+        .page-meta {
+            margin: 0;
+            font-size: 12.5px;
+            letter-spacing: .06em;
+            color: var(--muted);
+        }
+
+        .page-meta em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        /* ============================================================
+           左侧边栏（贴视口最左，fixed）：
+           收起态 = 书脊把手（rail）；展开态 = 236px 面板从左缘滑出
+           ============================================================ */
+        .side-panel {
+            position: fixed;
+            top: 64px;
+            bottom: 0;
+            left: 0;
+            width: 236px;
+            background: var(--bg);
+            border-right: 1px solid var(--line);
+            transform: translateX(-100%);
+            transition: transform .32s ease;
+            z-index: 96;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.side-open .side-panel {
+            transform: translateX(0);
+        }
+
+        .side-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .side-title {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: .02em;
+        }
+
+        .side-close {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 0 -4px 0 0;
+            padding: 6px 8px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            letter-spacing: .08em;
+            cursor: pointer;
+            transition: color .2s;
+        }
+
+        .side-close:hover {
+            color: var(--accent);
+        }
+
+        .side-close svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .side-sub {
+            margin: 5px 0 0;
+            font-size: 11.5px;
+            letter-spacing: .05em;
+            color: var(--muted);
+        }
+
+        .side-tags-list {
+            list-style: none;
+            margin: 14px 0 0;
+            padding: 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .side-tag {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            padding: 9px 10px 9px 12px;
+            border: none;
+            border-left: 2px solid transparent;
+            border-bottom: 1px solid var(--line);
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: left;
+            cursor: pointer;
+            transition: color .2s, background-color .2s, padding-left .2s;
+        }
+
+        .side-tag:hover {
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding-left: 16px;
+        }
+
+        .side-tag.is-on {
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-left-color: var(--accent);
+            padding-left: 10px;
+            font-weight: 500;
+        }
+
+        .side-tag-cnt {
+            flex-shrink: 0;
+            font-size: 11.5px;
+            letter-spacing: .03em;
+            color: var(--line-strong);
+            transition: color .2s;
+        }
+
+        .side-tag:hover .side-tag-cnt {
+            color: var(--accent);
+        }
+
+        .side-tag.is-on .side-tag-cnt {
+            color: var(--accent);
+        }
+
+        .side-panel .side-inner {
+            padding: 30px 24px 36px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            flex: 1;
+        }
+
+        .side-panel .side-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 面板收起状态提示条：当侧栏收起且无选中时提示，有选中时高亮 */
+        .side-note {
+            margin: 16px 0 0;
+            font-size: 11.5px;
+            line-height: 1.8;
+            letter-spacing: .04em;
+            color: var(--muted);
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+        }
+
+        .side-note em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        /* ---------- 书脊把手：侧栏收起时贴视口最左，常驻 ---------- */
+        .rail-btn {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            z-index: 92;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            writing-mode: vertical-rl;
+            padding: 26px 12px;
+            margin: 0;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--font-body);
+            font-size: 13px;
+            letter-spacing: .34em;
+            cursor: pointer;
+            transition: color .2s, background-color .2s;
+        }
+
+        .rail-btn:hover {
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .rail-dot {
+            width: 5px;
+            height: 5px;
+            margin-top: 20px;
+            border-radius: 50%;
+            background: var(--line-strong);
+            transition: background-color .2s;
+        }
+
+        .rail-btn.has-filter .rail-dot {
+            background: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        body.side-open .rail-btn {
+            display: none;
+        }
+
+        /* ============ 右栏：专栏列表 ============ */
+        .cols-main {
+            padding-top: 26px;
+        }
+
+        .cls-list {
+            padding: 0;
+        }
+
+        .cls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+            padding: 21px 4px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .cls-row:last-child {
+            border-bottom: none;
+        }
+
+        .cls-row.is-off {
+            display: none;
+        }
+
+        .cls-row.row-in {
+            animation: row-in .3s ease;
+        }
+
+        @keyframes row-in {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .cls-row-main {
+            min-width: 0;
+        }
+
+        .cls-title {
+            margin: 0 0 6px;
+            font-family: var(--font-display);
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .cls-title a {
+            color: var(--text);
+            background-image: linear-gradient(var(--accent), var(--accent));
+            background-repeat: no-repeat;
+            background-size: 0 1px;
+            background-position: 0 100%;
+            transition: color .2s, background-size .25s ease;
+        }
+
+        .cls-row:hover .cls-title a {
+            color: var(--accent);
+            background-size: 100% 1px;
+        }
+
+        .cls-desc {
+            margin: 0;
+            font-size: 13.5px;
+            color: var(--muted);
+        }
+
+        .cls-tagline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 11px;
+        }
+
+        .tag-chip {
+            padding: 2px 11px;
+            border: 1px solid var(--line-strong);
+            border-radius: 999px;
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--font-body);
+            font-size: 12px;
+            line-height: 1.7;
+            cursor: pointer;
+            transition: color .2s, border-color .2s, background-color .2s;
+        }
+
+        .tag-chip:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .tag-chip.is-on {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .cls-row-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+            font-size: 13px;
+            letter-spacing: .08em;
+            color: var(--muted);
+        }
+
+        .cls-arrow {
+            font-size: 18px;
+            color: var(--line-strong);
+            transition: color .2s, transform .2s;
+        }
+
+        .cls-row:hover .cls-arrow {
+            color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        /* ---------- 响应式：窄屏隐藏侧栏与把手，退回单列 ---------- */
+        @media (max-width: 1000px) {
+            .page-wrap {
+                padding: 0 20px 80px;
+            }
+
+            .rail-btn,
+            .side-panel {
+                display: none;
+            }
+
+            .cols-main {
+                padding-top: 20px;
+            }
+
+            .cls-title {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="site-title" href="#"><span class="dot"></span>天青·水</a>
+            <nav class="site-nav">
+                <a href="#">主页</a>
+                <a href="#" class="active">专栏</a>
+                <a href="#">随笔</a>
+                <a href="#">归档</a>
+                <a href="#">关于</a>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="切换深浅色" title="切换深浅色">
+                <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path
+                        d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
+                    </path>
+                </svg>
+                <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" hidden>
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="page-wrap">
+        <header class="page-head">
+            <p class="page-kicker">专栏</p>
+            <h1 class="page-title">把散落的文字，收成几册。</h1>
+            <p class="page-sub">技术学习的笔记，生活随手的感悟，各自归位，各自生长。</p>
+            <p class="page-meta mono">共 <em id="meta-cols">3</em> 个专栏</p>
+        </header>
+
+        <div class="cols-main">
+            <div class="cls-list" id="clist">
+                <article class="cls-row" data-tags="claude 指南 AI">
+                    <div class="cls-row-main">
+                        <h2 class="cls-title"><a href="#">claude code 进阶指南</a></h2>
+                        <p class="cls-desc">用人话拆解 Claude Code 的指令、工具、记忆、Skills、Hooks 与 Subagent，只讲各组件怎么用。</p>
+                        <div class="cls-tagline">
+                            <button type="button" class="tag-chip" data-tag="claude">claude</button>
+                            <button type="button" class="tag-chip" data-tag="指南">指南</button>
+                            <button type="button" class="tag-chip" data-tag="AI">AI</button>
+                        </div>
+                    </div>
+                    <div class="cls-row-meta mono"><span>10 篇</span><span class="cls-arrow">→</span></div>
+                </article>
+
+                <article class="cls-row" data-tags="claude 指南 AI">
+                    <div class="cls-row-main">
+                        <h2 class="cls-title"><a href="#">claude agent sdk 指南</a></h2>
+                        <p class="cls-desc">案例驱动地 claude agent sdk 使用方法介绍</p>
+                        <div class="cls-tagline">
+                            <button type="button" class="tag-chip" data-tag="claude">claude</button>
+                            <button type="button" class="tag-chip" data-tag="指南">指南</button>
+                            <button type="button" class="tag-chip" data-tag="AI">AI</button>
+                        </div>
+                    </div>
+                    <div class="cls-row-meta mono"><span>8 篇</span><span class="cls-arrow">→</span></div>
+                </article>
+
+                <article class="cls-row" data-tags="linux">
+                    <div class="cls-row-main">
+                        <h2 class="cls-title"><a href="#">linux 命令入门</a></h2>
+                        <div class="cls-tagline">
+                            <button type="button" class="tag-chip" data-tag="linux">linux</button>
+                        </div>
+                    </div>
+                    <div class="cls-row-meta mono"><span>0 篇</span><span class="cls-arrow">→</span></div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <!-- 标签侧栏：贴页面最左，从 header 下方延展到底部 -->
+    <aside class="side-panel" id="side-panel" aria-label="按主题筛选专栏">
+        <div class="side-inner">
+            <div class="side-head">
+                <h2 class="side-title">主题</h2>
+                <button type="button" class="side-close" id="side-close" aria-label="收起标签侧栏">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <path d="M15 18l-6-6 6-6"></path>
+                    </svg>收起
+                </button>
+            </div>
+            <p class="side-sub mono">共 <span id="side-count">4</span> 个标签</p>
+            <ul class="side-tags-list" id="side-list">
+                <li>
+                    <button type="button" class="side-tag is-on" data-tag="all" aria-pressed="true">
+                        <span class="side-tag-name">全部专栏</span>
+                        <span class="side-tag-cnt">3</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="side-tag" data-tag="claude" aria-pressed="false">
+                        <span class="side-tag-name">claude</span>
+                        <span class="side-tag-cnt">2</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="side-tag" data-tag="指南" aria-pressed="false">
+                        <span class="side-tag-name">指南</span>
+                        <span class="side-tag-cnt">2</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="side-tag" data-tag="AI" aria-pressed="false">
+                        <span class="side-tag-name">AI</span>
+                        <span class="side-tag-cnt">2</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="side-tag" data-tag="linux" aria-pressed="false">
+                        <span class="side-tag-name">linux</span>
+                        <span class="side-tag-cnt">1</span>
+                    </button>
+                </li>
+            </ul>
+            <p class="side-note" id="side-note">侧栏收起时，仍可点击条目下方的行内标签进行筛选。<em>当前：全部</em></p>
+        </div>
+    </aside>
+
+    <!-- 书脊把手：仅收起态显示，贴视口最左 -->
+    <button type="button" class="rail-btn" id="rail" aria-expanded="false" title="展开标签筛选">
+        <span>标签</span>
+        <span class="rail-dot" aria-hidden="true"></span>
+    </button>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* ---------- 深浅色切换（预览用，落地后由 theme.js 接管） ---------- */
+            var themeBtn = document.getElementById('theme-toggle');
+            var sunIc = document.getElementById('theme-icon-sun');
+            var moonIc = document.getElementById('theme-icon-moon');
+            function syncThemeIc() {
+                var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+                sunIc.hidden = dark;
+                moonIc.hidden = !dark;
+            }
+            syncThemeIc();
+            themeBtn.addEventListener('click', function () {
+                var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                syncThemeIc();
+            });
+
+            /* ---------- 侧栏展开 / 收起 ---------- */
+            var body = document.body;
+            var rail = document.getElementById('rail');
+            var closeBtn = document.getElementById('side-close');
+
+            function openSide() {
+                body.classList.add('side-open');
+                rail.setAttribute('aria-expanded', 'true');
+                rail.title = '收起标签筛选';
+            }
+            function closeSide() {
+                body.classList.remove('side-open');
+                rail.setAttribute('aria-expanded', 'false');
+                rail.title = '展开标签筛选';
+            }
+
+            rail.addEventListener('click', openSide);
+            closeBtn.addEventListener('click', closeSide);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeSide();
+            });
+
+            /* ---------- 标签过滤（侧栏按钮与行内小标签共用） ---------- */
+            var clist = document.getElementById('clist');
+            var sideList = document.getElementById('side-list');
+            var metaCols = document.getElementById('meta-cols');
+            var sideNote = document.getElementById('side-note');
+            var tagNames = {
+                all: '全部'
+            };
+            sideList.querySelectorAll('.side-tag').forEach(function (b) {
+                var t = b.getAttribute('data-tag');
+                if (t !== 'all') tagNames[t] = b.querySelector('.side-tag-name').textContent;
+            });
+            var rows = Array.prototype.slice.call(clist.querySelectorAll('.cls-row'));
+            var totalCols = rows.length;
+            var curTag = 'all';
+            var shown = rows.slice();
+
+            function tagsOf(row) {
+                return (row.getAttribute('data-tags') || '').split(' ').filter(function (t) { return t; });
+            }
+
+            function setTag(tag) {
+                curTag = tag;
+                var next = [];
+                rows.forEach(function (row) {
+                    var hit = curTag === 'all' || tagsOf(row).indexOf(curTag) > -1;
+                    if (hit) {
+                        next.push(row);
+                        row.classList.remove('is-off');
+                        if (shown.indexOf(row) === -1) {
+                            row.classList.remove('row-in');
+                            void row.offsetWidth;
+                            row.classList.add('row-in');
+                        }
+                    } else {
+                        row.classList.add('is-off');
+                    }
+                });
+                shown = next;
+
+                /* 同步：侧栏按钮 */
+                sideList.querySelectorAll('.side-tag').forEach(function (b) {
+                    var on = b.getAttribute('data-tag') === curTag;
+                    b.classList.toggle('is-on', on);
+                    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+                });
+                /* 同步：行内小标签 */
+                clist.querySelectorAll('.tag-chip').forEach(function (c) {
+                    c.classList.toggle('is-on', curTag !== 'all' && c.getAttribute('data-tag') === curTag);
+                });
+                /* 页头计数 */
+                metaCols.textContent = curTag === 'all' ? String(totalCols) : shown.length + ' / ' + totalCols;
+                /* 把手状态点 + 面板底部说明 */
+                rail.classList.toggle('has-filter', curTag !== 'all');
+                sideNote.innerHTML = curTag === 'all'
+                    ? '侧栏收起时，仍可点击条目下方的行内标签进行筛选。<em>当前：全部</em>'
+                    : '侧栏收起时，仍可点击条目下方的行内标签进行筛选。<em>当前：' + tagNames[curTag] + '</em>';
+            }
+
+            function onPick(e) {
+                var el = e.target.closest('.side-tag, .tag-chip');
+                if (!el || !el.getAttribute('data-tag')) return;
+                setTag(curTag === el.getAttribute('data-tag') ? 'all' : el.getAttribute('data-tag'));
+            }
+
+            sideList.addEventListener('click', onPick);
+            clist.addEventListener('click', onPick);
+        })();
+    </script>
+</body>
+
+</html>

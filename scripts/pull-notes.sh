@@ -11,6 +11,9 @@ REPOS_FILE="${NOTES_REPOS_FILE:-scripts/notes-repos.txt}"  # 仓库列表
 SRC_BASE="_notes-src"          # 临时 clone 根目录(不入库,见 .gitignore)
 OUT_BASE="_posts/notes"        # Jekyll 输出根目录(_posts 子目录,自动进入主时间线)
 ASSETS_BASE="assets/notes"     # 图片拷贝根目录
+COLUMNS_OUT="_data/columns.yml" # 专栏配置输出:由各仓库根目录 columns.yml 合并(不入库)
+COLS_TMP="$(mktemp)"            # columns.yml 聚合临时文件
+COLS_IDS=""                     # 已收集的专栏 id(换行分隔,用于查重)
 
 [ -f "$REPOS_FILE" ] || { echo "❌ 未找到仓库列表 $REPOS_FILE"; exit 1; }
 
@@ -43,6 +46,32 @@ while read -r name url; do
   if [ -d "$assets_src" ]; then
     mkdir -p "$ASSETS_BASE/$name"
     cp -R "$assets_src"/. "$ASSETS_BASE/$name"/
+  fi
+
+  # 仓库根 columns.yml:本仓库的专栏配置,聚合到站点 _data/columns.yml;
+  # 同 id 跨仓库重复属于配置错误,直接失败(强制人工调整)
+  src_cols="$src/columns.yml"
+  if [ -f "$src_cols" ]; then
+    echo "  📚 columns: $name"
+    while IFS= read -r cid; do
+      if [ -z "$cid" ]; then
+        echo "  ❌ $name 的 columns.yml 存在缺少 id 的条目" >&2
+        exit 1
+      fi
+      if grep -qxF "$cid" <<<"$COLS_IDS"; then
+        echo "  ❌ 专栏 id 重复: '$cid' ($name 的 columns.yml 与已收集的配置冲突)" >&2
+        exit 1
+      fi
+      COLS_IDS="${COLS_IDS}${cid}"$'\n'
+    done < <(awk '
+      /^[[:space:]]*#/ { next }
+      /^[[:space:]]*-[[:space:]]*id:[[:space:]]*/ {
+        line = $0
+        sub(/^[[:space:]]*-[[:space:]]*id:[[:space:]]*/, "", line)
+        print line
+      }
+    ' "$src_cols")
+    cat "$src_cols" >> "$COLS_TMP"
   fi
 
   # 递归遍历仓库内所有 .md(跳过 README 索引文件,保留子目录结构以免同名冲突)
@@ -165,5 +194,19 @@ while read -r name url; do
   echo "  ✅ $name: $count 篇"
   total=$((total + count))
 done < "$REPOS_FILE"
+
+# 聚合各仓库 columns.yml → _data/columns.yml;没有任何仓库提供时清除旧产物
+if [ -s "$COLS_TMP" ]; then
+  mkdir -p "$(dirname "$COLUMNS_OUT")"
+  cat > "$COLUMNS_OUT" <<'EOF'
+# 自动生成:由 scripts/pull-notes.sh 从各笔记仓库根目录 columns.yml 合并而来(不入库)。
+# 维护入口:各笔记仓库根目录的 columns.yml,勿直接编辑本文件。
+EOF
+  cat "$COLS_TMP" >> "$COLUMNS_OUT"
+  rm -f "$COLS_TMP"
+  echo "✅ 专栏配置已合并 → $COLUMNS_OUT"
+else
+  rm -f "$COLUMNS_OUT" "$COLS_TMP"
+fi
 
 echo "✅ 共生成 $total 篇笔记到 $OUT_BASE"

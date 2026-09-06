@@ -8,6 +8,9 @@ _site/
 _posts/notes/
 assets/notes/
 
+# 由 scripts/pull-notes.sh 从各笔记仓库合并生成的专栏配置(不入库,维护在各仓库根目录)
+_data/columns.yml
+
 # 构建时临时 clone 的笔记仓库(不入库,见 .github/workflows)
 _notes-src/
 
