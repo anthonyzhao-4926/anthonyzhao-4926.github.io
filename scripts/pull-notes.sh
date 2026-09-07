@@ -3,6 +3,9 @@
 # 从多个笔记仓库拉取内容,生成到 _posts/notes/<仓库名>/
 # 笔记不带日期与 front matter,按 git 提交日期生成日期。
 # 仓库列表见 scripts/notes-repos.txt(名称 地址 每行一个)。
+# 各仓库根目录 config.yml(旧版 columns.yml 自动兼容)提供:
+#   columns: 本仓库专栏配置,聚合到站点 _data/columns.yml;
+#   exclude: 不发布的 md 文件/文件夹(相对仓库根目录),遍历时跳过。
 # 由 GitHub Actions 构建前运行;本地手动运行时也会临时 clone。
 # ==========================================================
 set -euo pipefail
@@ -11,9 +14,22 @@ REPOS_FILE="${NOTES_REPOS_FILE:-scripts/notes-repos.txt}"  # 仓库列表
 SRC_BASE="_notes-src"          # 临时 clone 根目录(不入库,见 .gitignore)
 OUT_BASE="_posts/notes"        # Jekyll 输出根目录(_posts 子目录,自动进入主时间线)
 ASSETS_BASE="assets/notes"     # 图片拷贝根目录
-COLUMNS_OUT="_data/columns.yml" # 专栏配置输出:由各仓库根目录 columns.yml 合并(不入库)
-COLS_TMP="$(mktemp)"            # columns.yml 聚合临时文件
+COLUMNS_OUT="_data/columns.yml" # 专栏配置输出:由各仓库根 config.yml 的 columns 段合并(不入库)
+COLS_TMP="$(mktemp)"            # columns 聚合临时文件
 COLS_IDS=""                     # 已收集的专栏 id(换行分隔,用于查重)
+EXCLUDES=()                     # 当前仓库的 exclude 清单(相对仓库根目录的 md 路径)
+
+# 命中排除清单返回 0:以 / 结尾的条目按目录前缀匹配;不带 / 的条目精确匹配文件,命中同名目录时按目录前缀匹配
+is_excluded() {
+  local rel="$1" p
+  for p in "${EXCLUDES[@]:-}"; do
+    case "$p" in
+      */) [[ "$rel" == "$p"* ]] && return 0 ;;
+      *)  [[ "$rel" == "$p" || "$rel" == "$p"/* ]] && return 0 ;;
+    esac
+  done
+  return 1
+}
 
 [ -f "$REPOS_FILE" ] || { echo "❌ 未找到仓库列表 $REPOS_FILE"; exit 1; }
 
@@ -30,6 +46,7 @@ while read -r name url; do
   src="$SRC_BASE/$name"
   out="$OUT_BASE/$name"
   assets_src="$src/assets"
+  EXCLUDES=()
 
   echo "▶ 仓库: $name"
   echo "▶ 仓库url: $url"
@@ -48,18 +65,39 @@ while read -r name url; do
     cp -R "$assets_src"/. "$ASSETS_BASE/$name"/
   fi
 
-  # 仓库根 columns.yml:本仓库的专栏配置,聚合到站点 _data/columns.yml;
-  # 同 id 跨仓库重复属于配置错误,直接失败(强制人工调整)
-  src_cols="$src/columns.yml"
-  if [ -f "$src_cols" ]; then
-    echo "  📚 columns: $name"
+  # 仓库根配置:优先 config.yml,兼容旧版 columns.yml
+  src_cfg="$src/config.yml"
+  [ -f "$src_cfg" ] || src_cfg="$src/columns.yml"
+  if [ -f "$src_cfg" ]; then
+    echo "  📋 配置: $name ($(basename "$src_cfg"))"
+
+    # 解析 exclude 清单(条目为相对仓库根目录的 md 路径,支持引号/注释/空行)
+    EXCLUDES=()
+    while IFS= read -r p; do
+      EXCLUDES+=("$p")
+    done < <(awk '
+      /^exclude:[[:space:]]*$/ { cap = 1; next }
+      cap && /^[A-Za-z0-9_.-]+:[[:space:]]*$/ { exit }
+      cap && /^[[:space:]]*#/ { next }
+      cap && /^[[:space:]]*-[[:space:]]*/ {
+        line = $0
+        sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+        sub(/[[:space:]]*$/, "", line)
+        gsub(/^["'\'']+|["'\'']+$/, "", line)
+        sub(/^\.\//, "", line)
+        if (line != "") print line
+      }
+    ' "$src_cfg")
+
+    # columns 段聚合:同 id 跨仓库重复属于配置错误,直接失败(强制人工调整);
+    # 聚合格式新旧兼容:顶层有 columns: 键时抽取该段(去掉列表项缩进),旧版纯列表则整文件合并
     while IFS= read -r cid; do
       if [ -z "$cid" ]; then
-        echo "  ❌ $name 的 columns.yml 存在缺少 id 的条目" >&2
+        echo "  ❌ $name 的 $(basename "$src_cfg") 存在缺少 id 的条目" >&2
         exit 1
       fi
       if grep -qxF "$cid" <<<"$COLS_IDS"; then
-        echo "  ❌ 专栏 id 重复: '$cid' ($name 的 columns.yml 与已收集的配置冲突)" >&2
+        echo "  ❌ 专栏 id 重复: '$cid' ($name 的 $(basename "$src_cfg") 与已收集的配置冲突)" >&2
         exit 1
       fi
       COLS_IDS="${COLS_IDS}${cid}"$'\n'
@@ -70,14 +108,27 @@ while read -r name url; do
         sub(/^[[:space:]]*-[[:space:]]*id:[[:space:]]*/, "", line)
         print line
       }
-    ' "$src_cols")
-    cat "$src_cols" >> "$COLS_TMP"
+    ' "$src_cfg")
+    if grep -qE '^columns:[[:space:]]*$' "$src_cfg"; then
+      awk '
+        /^columns:[[:space:]]*$/ { cap = 1; next }
+        cap && /^[A-Za-z0-9_.-]+:[[:space:]]*$/ { exit }
+        cap && /^[[:space:]]{2}/ { sub(/^  /, "") }
+        cap { print }
+      ' "$src_cfg" >> "$COLS_TMP"
+    else
+      cat "$src_cfg" >> "$COLS_TMP"
+    fi
   fi
 
-  # 递归遍历仓库内所有 .md(跳过 README 索引文件,保留子目录结构以免同名冲突)
+  # 递归遍历仓库内所有 .md(跳过 exclude 命中的文件/文件夹与 README 索引文件,保留子目录结构以免同名冲突)
   count=0
   while IFS= read -r -d '' f; do
     rel="${f#"$src"/}"
+    if is_excluded "$rel"; then
+      echo "  ⊘ 排除 $rel"
+      continue
+    fi
     base=$(basename "$rel")
     [ "$base" = "README.md" ] && continue
 
@@ -195,12 +246,12 @@ while read -r name url; do
   total=$((total + count))
 done < "$REPOS_FILE"
 
-# 聚合各仓库 columns.yml → _data/columns.yml;没有任何仓库提供时清除旧产物
+# 聚合各仓库 columns 段 → _data/columns.yml;没有任何仓库提供时清除旧产物
 if [ -s "$COLS_TMP" ]; then
   mkdir -p "$(dirname "$COLUMNS_OUT")"
   cat > "$COLUMNS_OUT" <<'EOF'
-# 自动生成:由 scripts/pull-notes.sh 从各笔记仓库根目录 columns.yml 合并而来(不入库)。
-# 维护入口:各笔记仓库根目录的 columns.yml,勿直接编辑本文件。
+# 自动生成:由 scripts/pull-notes.sh 从各笔记仓库根目录 config.yml 的 columns 段合并而来(不入库)。
+# 维护入口:各笔记仓库根目录的 config.yml,勿直接编辑本文件。
 EOF
   cat "$COLS_TMP" >> "$COLUMNS_OUT"
   rm -f "$COLS_TMP"
