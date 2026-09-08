@@ -1226,7 +1226,7 @@ body.side-open .rail-btn {
     color: var(--muted);
 }
 
-/* 行内小标签 */
+/* 行内标签行 */
 .cls-tagline {
     display: flex;
     flex-wrap: wrap;
@@ -1234,28 +1234,31 @@ body.side-open .rail-btn {
     margin-top: 11px;
 }
 
+/* 行内小标签：纯文字 #标签，无胶囊边框 */
 .tag-chip {
-    padding: 2px 11px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: transparent;
+    padding: 0;
+    border: none;
+    background: none;
     color: var(--muted);
     font-family: var(--font-body);
-    font-size: 12px;
-    line-height: 1.7;
+    font-size: 12.5px;
+    line-height: 1.8;
     cursor: pointer;
-    transition: color .2s, border-color .2s, background-color .2s;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat;
+    background-size: 0 1px;
+    background-position: 0 100%;
+    transition: color .2s, background-size .25s ease;
 }
 
 .tag-chip:hover {
     color: var(--accent);
-    border-color: var(--accent);
+    background-size: 100% 1px;
 }
 
 .tag-chip.is-on {
     color: var(--accent);
-    border-color: var(--accent);
-    background: var(--accent-soft);
+    background-size: 100% 1px;
 }
 
 .cls-row-meta {

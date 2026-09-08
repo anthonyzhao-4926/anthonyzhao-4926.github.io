@@ -44,7 +44,7 @@ order: 1
                 {% if col_tags.size > 0 %}
                 <div class="cls-tagline">
                     {% for t in col_tags %}
-                    <button type="button" class="tag-chip" data-tag="{{ t }}">{{ t }}</button>
+                    <button type="button" class="tag-chip" data-tag="{{ t }}">#{{ t }}</button>
                     {% endfor %}
                 </div>
                 {% endif %}
