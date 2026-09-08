@@ -1538,6 +1538,94 @@ body.side-open .rail-btn {
     padding-left: 10px;
 }
 
+/* 左栏：按专栏文件夹分组，可折叠 */
+.col-group {
+    list-style: none;
+}
+
+.col-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 12px 10px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: color .2s, background .2s;
+}
+
+.col-group-head:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.col-group-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.col-group-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: none;
+    color: var(--muted);
+}
+
+.col-group-cnt {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: .04em;
+}
+
+.col-group-arrow {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform .2s;
+}
+
+.col-group.collapsed .col-group-arrow {
+    transform: rotate(-90deg);
+}
+
+.col-group-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.col-group-list a {
+    padding-left: 24px;
+    font-size: 13.5px;
+}
+
+.col-group-list a:hover {
+    padding-left: 28px;
+}
+
+.col-group-list a.current {
+    padding-left: 22px;
+}
+
+.col-group.collapsed > .col-group-list {
+    display: none;
+}
+
 .col-main {
     min-width: 0;
     padding-top: 8px;

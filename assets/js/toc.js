@@ -72,7 +72,16 @@
 
         function setCurrent(url) {
             shell.querySelectorAll('.col-left-list a[data-post]').forEach(function (a) {
-                a.classList.toggle('current', a.getAttribute('data-post') === url);
+                var isCur = a.getAttribute('data-post') === url;
+                a.classList.toggle('current', isCur);
+                if (isCur) {
+                    var grp = a.closest('.col-group');
+                    if (grp) {
+                        grp.classList.remove('collapsed');
+                        var head = grp.querySelector('.col-group-head');
+                        if (head) head.setAttribute('aria-expanded', 'true');
+                    }
+                }
             });
         }
 
@@ -112,6 +121,15 @@
                 if (a.classList.contains('current')) return;
                 e.preventDefault();
                 loadPost(a.getAttribute('data-post'));
+            });
+        });
+
+        /* 左栏：按文件夹分组可折叠；当前文章所在组始终保持展开 */
+        shell.querySelectorAll('.col-group-head').forEach(function (head) {
+            head.addEventListener('click', function () {
+                var grp = head.closest('.col-group');
+                var collapsed = grp.classList.toggle('collapsed');
+                head.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
             });
         });
 

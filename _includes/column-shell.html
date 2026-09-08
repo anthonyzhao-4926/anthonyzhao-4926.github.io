@@ -27,12 +27,74 @@
         <p class="col-left-count mono muted">共 <span class="js-count"
                 data-count-published="{{ published_posts | size }}" data-count-all="{{ column_posts | size }}">{{
                 published_posts | size }}</span> 篇文章</p>
+        {% assign col_root_prefix = '_posts/notes/blog/' %}
+        {% assign groupings = "" | split: "," %}
+        {% for post in column_posts %}
+        {% assign relp = post.path | remove: col_root_prefix %}
+        {% assign segs = relp | split: '/' %}
+        {% if segs.size > 2 %}
+        {% assign pg = segs[1] %}
+        {% else %}
+        {% assign pg = "" %}
+        {% endif %}
+        {% unless groupings contains pg %}
+        {% assign groupings = groupings | push: pg %}
+        {% endunless %}
+        {% endfor %}
+
         <ul class="col-left-list">
+            {% for g in groupings %}
+            {% if g == empty %}
             {% for post in column_posts %}
-            <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {% endif %}><a
-                    href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url==current_post.url %}class="current"
-                    {% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
-                    endunless %}</a></li>
+            {% assign relp = post.path | remove: col_root_prefix %}
+            {% assign segs = relp | split: '/' %}
+            {% if segs.size > 2 %}
+            {% assign pg = segs[1] %}
+            {% else %}
+            {% assign pg = "" %}
+            {% endif %}
+            {% if pg == empty %}
+            <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            {% assign group_count = 0 %}
+            {% for post in column_posts %}
+            {% assign relp = post.path | remove: col_root_prefix %}
+            {% assign segs = relp | split: '/' %}
+            {% if segs.size > 2 %}
+            {% assign pg = segs[1] %}
+            {% else %}
+            {% assign pg = "" %}
+            {% endif %}
+            {% if pg == g %}
+            {% assign group_count = group_count | plus: 1 %}
+            {% endif %}
+            {% endfor %}
+            <li class="col-group">
+                <button type="button" class="col-group-head" aria-expanded="true">
+                    <span class="col-group-name">{{ g }}</span>
+                    <span class="col-group-meta">
+                        <span class="col-group-cnt">{{ group_count }}</span>
+                        <svg class="col-group-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                </button>
+                <ul class="col-group-list">
+                    {% for post in column_posts %}
+                    {% assign relp = post.path | remove: col_root_prefix %}
+                    {% assign segs = relp | split: '/' %}
+                    {% if segs.size > 2 %}
+                    {% assign pg = segs[1] %}
+                    {% else %}
+                    {% assign pg = "" %}
+                    {% endif %}
+                    {% if pg == g %}
+                    <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endif %}
             {% endfor %}
             {% if column_posts.size == 0 %}
             <li class="muted">暂无文章</li>
