@@ -1622,7 +1622,7 @@ body.side-open .rail-btn {
     padding-left: 22px;
 }
 
-.col-group.collapsed > .col-group-list {
+.col-group.collapsed>.col-group-list {
     display: none;
 }
 

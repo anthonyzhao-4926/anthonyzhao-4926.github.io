@@ -54,7 +54,10 @@
             {% assign pg = "" %}
             {% endif %}
             {% if pg == empty %}
-            <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>
+            <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {% endif %}><a
+                    href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url==current_post.url %}class="current"
+                    {% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
+                    endunless %}</a></li>
             {% endif %}
             {% endfor %}
             {% else %}
@@ -76,7 +79,9 @@
                     <span class="col-group-name">{{ g }}</span>
                     <span class="col-group-meta">
                         <span class="col-group-cnt">{{ group_count }}</span>
-                        <svg class="col-group-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+                        <svg class="col-group-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 9l6 6 6-6"></path>
+                        </svg>
                     </span>
                 </button>
                 <ul class="col-group-list">
@@ -89,7 +94,10 @@
                     {% assign pg = "" %}
                     {% endif %}
                     {% if pg == g %}
-                    <li data-viewable="{{ post.viewable }}" {% if post.url == current_post.url %}class="is-current"{% endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url == current_post.url %}class="current"{% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a></li>
+                    <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {%
+                        endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url==current_post.url
+                            %}class="current" {% endif %}>{{ post.title }}{% unless post.viewable %} <span
+                                class="draft-badge">草稿</span>{% endunless %}</a></li>
                     {% endif %}
                     {% endfor %}
                 </ul>
@@ -109,7 +117,8 @@
         <div class="toc-source">
             <header class="post-header">
                 <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}{% unless current_post.viewable %}
-                    <span class="draft-badge">草稿</span>{% endunless %}</p>
+                    <span class="draft-badge">草稿</span>{% endunless %}
+                </p>
                 <h1 class="post-title">{{ current_post.title }}</h1>
                 <p class="post-meta mono">
                     <time datetime="{{ current_post.date | date: " %Y-%m-%d" }}">{{ current_post.date | date: "%Y-%m-%d"
