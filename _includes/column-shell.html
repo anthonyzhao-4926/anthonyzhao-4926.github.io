@@ -55,9 +55,10 @@
             {% endif %}
             {% if pg == empty %}
             <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {% endif %}><a
-                    href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url==current_post.url %}class="current"
-                    {% endif %}>{{ post.title }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
-                    endunless %}</a></li>
+                    href="{{ post.url }}" title="{{ post.title }}" data-post="{{ post.url }}" {% if
+                    post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title
+                        }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a>
+            </li>
             {% endif %}
             {% endfor %}
             {% else %}
@@ -95,9 +96,10 @@
                     {% endif %}
                     {% if pg == g %}
                     <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {%
-                        endif %}><a href="{{ post.url }}" data-post="{{ post.url }}" {% if post.url==current_post.url
-                            %}class="current" {% endif %}>{{ post.title }}{% unless post.viewable %} <span
-                                class="draft-badge">草稿</span>{% endunless %}</a></li>
+                        endif %}><a href="{{ post.url }}" title="{{ post.title }}" data-post="{{ post.url }}" {% if
+                            post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post
+                                title }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
+                        endunless %}</a></li>
                     {% endif %}
                     {% endfor %}
                 </ul>

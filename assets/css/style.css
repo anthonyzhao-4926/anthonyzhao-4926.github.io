@@ -1457,7 +1457,7 @@ body.side-open .rail-btn {
 
 .column-shell {
     display: grid;
-    grid-template-columns: 210px minmax(0, 1fr) 248px;
+    grid-template-columns: 260px minmax(0, 1fr) 248px;
     gap: 40px;
     align-items: start;
     padding-top: 48px;
@@ -1516,13 +1516,28 @@ body.side-open .rail-btn {
 }
 
 .col-left-list a {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     padding: 11px 12px;
     color: var(--muted);
     font-size: 14px;
     line-height: 1.5;
     border-bottom: 1px solid var(--line);
     transition: color .2s, background .2s, padding-left .2s;
+}
+
+/* 左栏文章名：超长单行截断，悬浮 title 显示全部 */
+.col-left-list .col-item-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.col-left-list .draft-badge {
+    flex: none;
 }
 
 .col-left-list a:hover {
