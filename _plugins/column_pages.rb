@@ -1,8 +1,10 @@
 # 专栏落地页生成器：专栏配置集中在 _data/columns.yml，
 # 为每个 id 生成静态页面 /columns/<id>/（layout: column）。
 #
-# 落地页本身没有正文（column shell 会渲染该专栏的第一篇文章），
+# 落地页本身没有正文（前端按 data-first 拉取第一篇文章），
 # 因此这里不依赖磁盘文件，直接构造内存中的 Page 对象。
+# 不要在模板里访问 current_post.content：会触发该文带布局再渲染，
+# 与 column-shell 形成递归，构建时内存暴涨、生成页大会打不开。
 
 module Jekyll
   class ColumnPagesGenerator < Generator

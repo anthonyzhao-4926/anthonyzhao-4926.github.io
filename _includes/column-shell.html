@@ -21,7 +21,7 @@
 {% if column_page %}{% assign column_url = '/columns/' | append: column_page.id | append: '/' | relative_url %}{% else
 %}{% assign column_url = '' %}{% endif %}
 
-<div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_url }}">
+<div class="column-shell" data-first="{{ current_post.url | default: '' }}" data-column="{{ column_url }}"{% unless current_post.url == page.url %} data-landing="true"{% endunless %}>
     <aside class="col-left">
         <h2 class="col-left-title"><a href="{{ '/columns/' | relative_url }}">{{ column_title }}</a></h2>
         <p class="col-left-count mono muted">共 <span class="js-count"
@@ -97,8 +97,7 @@
                     {% if pg == g %}
                     <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {%
                         endif %}><a href="{{ post.url }}" title="{{ post.title }}" data-post="{{ post.url }}" {% if
-                            post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post
-                                title }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
+                            post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
                         endunless %}</a></li>
                     {% endif %}
                     {% endfor %}
@@ -133,7 +132,7 @@
                 {% if current_post.url == page.url %}
                 {{ content }}
                 {% else %}
-                {{ current_post.content }}
+                <p class="muted" id="col-landing-placeholder">正在加载文章…</p>
                 {% endif %}
             </div>
         </div>

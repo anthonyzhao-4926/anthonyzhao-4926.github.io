@@ -220,6 +220,9 @@ while read -r name url; do
       [ -n "$src_column" ] && echo "column: $src_column"
       [ -n "$src_order" ] && echo "order: $src_order"
       [ -n "$src_viewable" ] && echo "viewable: $src_viewable"
+      # 笔记正文常含 Go/Vue 等 {{ }} 模板；Jekyll 默认当 Liquid 执行，
+      # 会把整站页面互相套进正文，构建时内存暴涨、专栏页大到打不开。
+      echo "render_with_liquid: false"
       echo "---"
       echo ""
       # 去掉源文件 front matter,再改写相对图片引用

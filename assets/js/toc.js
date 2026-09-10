@@ -145,6 +145,7 @@
 
         var deep = hashUrl();
         if (deep) loadPost(deep, false);
+        else if (shell.getAttribute('data-landing') === 'true' && firstUrl) loadPost(firstUrl, false);
     }
 
     var toggleBtn = document.getElementById('col-toggle');
