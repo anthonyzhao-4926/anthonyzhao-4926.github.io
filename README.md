@@ -121,9 +121,7 @@ bash scripts/pull-notes.sh   # 会临时 clone 所有仓库并生成
 
 | 配置 | 说明 |
 |---|---|
-| `title` / `tagline` / `description` | 站点名称与副标题，显示于首页页眉 |
-| `url` | 站点域名，须与 `CNAME` 一致 |
-| `paginate` | 首页每页文章数 |
+| `title` / `tagline` / `description` | 站点名称与副标题，显示于首页题头 |
 | `collections.tabs` | 顶层页面集合（专栏由 `_data/columns.yml` 管理，无需在 collections 注册） |
 | `_data/contact.yml` | 侧边栏社交链接（github / twitter / email / rss） |
 | `timezone` / `lang` | 时区与语言 |

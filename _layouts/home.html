@@ -2,45 +2,56 @@
 layout: default
 ---
 {% assign published_posts = site.posts | where_exp: "p", "p.viewable" %}
-<header class="masthead">
-    <p class="masthead-kicker">{{ site.tagline }}</p>
-    <h1 class="masthead-title">天青色的时光，<br>安静地落进字里行间。</h1>
-    <p class="masthead-sub">{{ site.description }}</p>
-    <p class="masthead-meta mono">{{ site.time | date: "%Y" }} · <span class="js-count"
-            data-count-published="{{ published_posts | size }}" data-count-all="{{ site.posts | size }}">{{
-            published_posts | size }}</span> 篇文章 · {{ site.data.columns.size }} 个专栏</p>
-</header>
+{% assign columns = site.data.columns | sort: "order" %}
 
-<div class="post-list">
-    {% for post in paginator.posts %}
-    {% if post.column %}{% assign flag = post.column_title | default: post.column %}{% else %}{% assign flag = "随笔" %}{%
-    endif %}
-    <article class="post-item" data-viewable="{{ post.viewable }}">
-        <div class="post-gutter">
-            <span class="vdate">{{ post.date | date: "%m·%d" }}</span>
-        </div>
-        <div class="post-body">
-            <p class="post-flag mono"><span class="flag-dot"></span>{{ flag }}{% unless post.viewable %} <span
-                    class="draft-badge">草稿</span>{% endunless %}</p>
-            <h2 class="post-title">
-                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            </h2>
-            {% if post.excerpt %}
-            <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>
+<article class="cover-hero">
+    <p class="cover-kicker">{{ site.tagline }}</p>
+    <h1 class="cover-title">天青色的时光，<br>安静地落进字里行间。</h1>
+</article>
+
+<section class="cover-sec">
+    <div class="cover-sec-head">
+        <h2>近日</h2>
+        <a href="{{ '/essays/' | relative_url }}">随笔 →</a>
+    </div>
+    <div class="cover-grid">
+        {% assign seen_buckets = "" %}
+        {% assign recent_count = 0 %}
+        {% for post in published_posts %}
+        {% if recent_count >= 3 %}{% break %}{% endif %}
+        {% if post.column %}{% assign bucket = post.column %}{% else %}{% assign bucket = "_essay" %}{% endif %}
+        {% assign marker = "|" | append: bucket | append: "|" %}
+        {% unless seen_buckets contains marker %}
+        {% assign seen_buckets = seen_buckets | append: marker %}
+        {% assign recent_count = recent_count | plus: 1 %}
+        {% if post.column %}{% assign flag = post.column_title | default: post.column %}{% else %}{% assign flag = "随笔" %}{% endif %}
+        <article class="cover-card" data-viewable="{{ post.viewable }}">
+            <p class="flag mono">{{ flag }} · {{ post.date | date: "%m·%d" }}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</p>
+            <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+        </article>
+        {% endunless %}
+        {% endfor %}
+    </div>
+</section>
+
+<section class="cover-sec">
+    <div class="cover-sec-head">
+        <h2>专栏</h2>
+        <a href="{{ '/columns/' | relative_url }}">全部专栏 →</a>
+    </div>
+    <div class="cover-cols">
+        {% for column in columns %}
+        {% assign col_posts = site.posts | where: "column", column.id %}
+        {% assign pub_posts = col_posts | where_exp: "p", "p.viewable" %}
+        <a class="cover-col" href="{{ '/columns/' | append: column.id | append: '/' | relative_url }}">
+            <span class="cover-col-top">
+                <strong>{{ column.title }}</strong>
+                <span class="n mono"><span class="js-count" data-count-published="{{ pub_posts | size }}" data-count-all="{{ col_posts | size }}">{{ pub_posts | size }}</span> 篇</span>
+            </span>
+            {% if column.description and column.description != "" %}
+            <span class="cover-col-desc">{{ column.description | truncate: 48 }}</span>
             {% endif %}
-        </div>
-    </article>
-    {% endfor %}
-</div>
-
-{% if paginator.total_pages > 1 %}
-<nav class="pagination">
-    {% if paginator.previous_page %}
-    <a href="{{ paginator.previous_page_path | relative_url }}">← 上一页</a>
-    {% endif %}
-    <span class="muted mono">{{ paginator.page }} / {{ paginator.total_pages }}</span>
-    {% if paginator.next_page %}
-    <a href="{{ paginator.next_page_path | relative_url }}">下一页 →</a>
-    {% endif %}
-</nav>
-{% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</section>

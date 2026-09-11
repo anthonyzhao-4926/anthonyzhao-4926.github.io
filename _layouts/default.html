@@ -5,7 +5,7 @@
     {% include head.html %}
 </head>
 
-<body>
+<body{% if page.layout == 'home' %} class="is-home"{% endif %}>
     {% include header.html %}
 
     <main

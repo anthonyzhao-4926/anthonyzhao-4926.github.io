@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-scheme="bento">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>主页改版预览 · 五案</title>
+    <style>
+        :root {
+            --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+            --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1f2c2b;
+            --muted: #7c8f8c;
+            --accent: #379a90;
+            --accent-soft: rgba(55, 154, 144, 0.10);
+            --cinnabar: #e0825a;
+            --line: #e8eeee;
+            --line-strong: #d4dfdc;
+            --card: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.86);
+            --shadow: 0 1px 2px rgba(31, 44, 43, 0.05);
+            --ink-soft: #eef5f3;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1b1b1f;
+            --text: #dfdfd6;
+            --muted: #98989f;
+            --accent: #57b4a6;
+            --accent-soft: rgba(87, 180, 166, 0.12);
+            --cinnabar: #e8926f;
+            --line: #2b2b31;
+            --line-strong: #3a3a42;
+            --card: #232327;
+            --header-bg: rgba(27, 27, 31, 0.82);
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            --ink-soft: #222226;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.85;
+            transition: background-color .3s ease, color .3s ease;
+            padding-bottom: 110px;
+        }
+
+        ::selection { background: var(--accent); color: #fff; }
+
+        a { color: var(--accent); text-decoration: none; }
+
+        .mono { font-family: var(--font-mono); }
+
+        .is-hidden { display: none !important; }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        /* ---------- 顶栏 ---------- */
+        .site-header {
+            border-bottom: 1px solid var(--line);
+            background: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            height: 64px;
+            max-width: var(--page-w, 920px);
+            margin: 0 auto;
+            padding: 0 28px;
+            transition: max-width .3s ease;
+        }
+
+        .site-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-size: 19px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .site-title:hover { color: var(--accent); }
+
+        .site-title .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--cinnabar);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+            flex-shrink: 0;
+        }
+
+        .site-nav {
+            display: flex;
+            gap: 2px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .site-nav a {
+            position: relative;
+            color: var(--muted);
+            font-size: 14.5px;
+            padding: 6px 12px;
+        }
+
+        .site-nav a:hover,
+        .site-nav a.active { color: var(--accent); }
+
+        .theme-toggle {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--muted);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* ---------- 方案说明条 ---------- */
+        .scheme-note {
+            max-width: var(--page-w, 920px);
+            margin: 0 auto;
+            padding: 22px 28px 0;
+        }
+
+        .scheme-note p {
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 10px 16px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .scheme-note strong {
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .scheme-note em {
+            font-style: normal;
+            color: var(--accent);
+            letter-spacing: .08em;
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        /* ---------- 视图切换 ---------- */
+        .scheme { display: none; }
+        [data-scheme="cover"] .scheme-cover { display: block; }
+        [data-scheme="split"] .scheme-split { display: block; }
+        [data-scheme="journal"] .scheme-journal { display: block; }
+        [data-scheme="bento"] .scheme-bento { display: block; }
+        [data-scheme="space"] .scheme-space { display: block; }
+
+        [data-scheme="cover"] { --page-w: 920px; }
+        [data-scheme="split"] { --page-w: 1080px; }
+        [data-scheme="journal"] { --page-w: 720px; }
+        [data-scheme="bento"] { --page-w: 1100px; }
+        [data-scheme="space"] { --page-w: 780px; }
+
+        .page {
+            max-width: var(--page-w, 920px);
+            margin: 0 auto;
+            padding: 0 28px 8px;
+            animation: fade-up .45s ease both;
+        }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================================
+           一 · 封面  大特写 + 近日三卡
+           ========================================================= */
+        .cover-hero {
+            margin-top: 36px;
+            padding: 40px 44px 36px;
+            background: var(--ink-soft);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-hero::after {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            pointer-events: none;
+        }
+
+        .cover-kicker {
+            margin: 0 0 14px;
+            font-size: 11.5px;
+            letter-spacing: .28em;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .cover-title {
+            margin: 0 0 16px;
+            font-family: var(--font-display);
+            font-size: clamp(32px, 5.4vw, 48px);
+            font-weight: 600;
+            line-height: 1.28;
+            letter-spacing: .02em;
+        }
+
+        .cover-title a { color: var(--text); }
+        .cover-title a:hover { color: var(--accent); }
+
+        .cover-excerpt {
+            margin: 0 0 22px;
+            max-width: 34em;
+            font-size: 16.5px;
+            color: var(--muted);
+        }
+
+        .cover-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            margin: 0;
+            font-size: 12.5px;
+            letter-spacing: .06em;
+            color: var(--muted);
+        }
+
+        .cover-meta .read {
+            color: var(--accent);
+        }
+
+        .cover-sec {
+            margin: 44px 0 0;
+        }
+
+        .cover-sec-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 0 0 18px;
+        }
+
+        .cover-sec-head h2 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .cover-sec-head a {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .cover-sec-head a:hover { color: var(--accent); }
+
+        .cover-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .cover-card {
+            padding: 22px 20px 20px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--card);
+            transition: border-color .2s, transform .2s;
+        }
+
+        .cover-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .cover-card .flag {
+            margin: 0 0 10px;
+            font-size: 11px;
+            letter-spacing: .16em;
+            color: var(--accent);
+        }
+
+        .cover-card h3 {
+            margin: 0 0 8px;
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .cover-card h3 a { color: var(--text); }
+        .cover-card h3 a:hover { color: var(--accent); }
+
+        .cover-card p {
+            margin: 0;
+            font-size: 13.5px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .cover-cols {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .cover-col {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .cover-col:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .cover-col .n {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        /* =========================================================
+           二 · 对开  左识右文
+           ========================================================= */
+        .split-wrap {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 72px;
+            padding-top: 48px;
+        }
+
+        .split-aside {
+            position: sticky;
+            top: 88px;
+            align-self: start;
+        }
+
+        .split-name {
+            margin: 0 0 8px;
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: .04em;
+        }
+
+        .split-bio {
+            margin: 0 0 28px;
+            font-size: 14.5px;
+            color: var(--muted);
+            line-height: 1.75;
+        }
+
+        .split-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 12px;
+            margin: 0 0 28px;
+            padding: 0 0 28px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .split-stats b {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--accent);
+        }
+
+        .split-stats span {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            letter-spacing: .12em;
+            color: var(--muted);
+        }
+
+        .split-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .split-links a {
+            color: var(--text);
+            font-size: 14.5px;
+        }
+
+        .split-links a:hover { color: var(--accent); }
+
+        .split-place {
+            margin: 28px 0 0;
+            font-size: 12px;
+            letter-spacing: .14em;
+            color: var(--muted);
+        }
+
+        .split-list { min-width: 0; }
+
+        .split-item {
+            padding: 26px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .split-item:first-child { padding-top: 0; }
+
+        .split-item .meta {
+            margin: 0 0 8px;
+            font-size: 12px;
+            letter-spacing: .14em;
+            color: var(--muted);
+        }
+
+        .split-item h2 {
+            margin: 0 0 8px;
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .split-item h2 a { color: var(--text); }
+        .split-item h2 a:hover { color: var(--accent); }
+
+        .split-item p {
+            margin: 0;
+            font-size: 14.5px;
+            color: var(--muted);
+        }
+
+        /* =========================================================
+           三 · 手帐  时间轴
+           ========================================================= */
+        .journal-head {
+            padding: 56px 0 36px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .journal-head .kicker {
+            margin: 0 0 12px;
+            font-size: 12px;
+            letter-spacing: .32em;
+            color: var(--accent);
+        }
+
+        .journal-head h1 {
+            margin: 0 0 10px;
+            font-family: var(--font-display);
+            font-size: clamp(28px, 5vw, 36px);
+            font-weight: 600;
+        }
+
+        .journal-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .tl { padding: 36px 0 8px; }
+
+        .tl-year {
+            margin: 0 0 8px 28px;
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .tl-month {
+            margin: 28px 0 8px 28px;
+            font-size: 12px;
+            letter-spacing: .22em;
+            color: var(--muted);
+        }
+
+        .tl-item {
+            position: relative;
+            padding: 16px 0 16px 28px;
+        }
+
+        .tl-item::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--line-strong);
+        }
+
+        .tl-item::after {
+            content: "";
+            position: absolute;
+            left: 1px;
+            top: 28px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--accent);
+        }
+
+        .tl-item:hover::after { background: var(--accent); }
+
+        .tl-item .when {
+            margin: 0 0 4px;
+            font-size: 12px;
+            letter-spacing: .16em;
+            color: var(--muted);
+        }
+
+        .tl-item h2 {
+            margin: 0 0 6px;
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .tl-item h2 a { color: var(--text); }
+        .tl-item h2 a:hover { color: var(--accent); }
+
+        .tl-item p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* =========================================================
+           四 · 书匣  不对称格子
+           ========================================================= */
+        .bento {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+            padding-top: 36px;
+        }
+
+        .bx {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 26px 24px;
+            min-width: 0;
+        }
+
+        .bx-feat {
+            grid-column: 1 / 9;
+            grid-row: 1 / 3;
+            background: var(--ink-soft);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .bx-feat .kicker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 16px;
+            font-size: 12px;
+            letter-spacing: .32em;
+        }
+
+        .bx-feat .kicker::before {
+            content: "";
+            width: 26px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .bx-feat h1 {
+            margin: 0 0 14px;
+            font-family: var(--font-display);
+            font-size: clamp(28px, 3.6vw, 40px);
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: .02em;
+            color: var(--text);
+        }
+
+        .bx-feat .lead {
+            margin: 0;
+            max-width: 34em;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--muted);
+        }
+        .bx-col1 { grid-column: 9 / 13; }
+        .bx-col2 { grid-column: 9 / 13; }
+        .bx-p1 { grid-column: 1 / 5; }
+        .bx-p2 { grid-column: 5 / 9; }
+        .bx-p3 { grid-column: 9 / 13; }
+        .bx-about { grid-column: 1 / 8; }
+        .bx-stat { grid-column: 8 / 13; display: flex; align-items: center; justify-content: space-around; gap: 12px; }
+
+        .bx .kicker {
+            margin: 0 0 10px;
+            font-size: 11px;
+            letter-spacing: .2em;
+            color: var(--accent);
+        }
+
+        .bx h2 {
+            margin: 0 0 10px;
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .bx h2 a { color: var(--text); }
+        .bx h2 a:hover { color: var(--accent); }
+
+        .bx p {
+            margin: 0;
+            font-size: 14.5px;
+            color: var(--muted);
+        }
+
+        .bx-col h2 { font-size: 20px; }
+
+        .bx-mini h2 { font-size: 18px; margin-bottom: 8px; }
+
+        .bx-stat b {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .bx-stat span {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            letter-spacing: .12em;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .bx-stat div { text-align: center; }
+
+        /* =========================================================
+           五 · 留白  大字 + 编号清单
+           ========================================================= */
+        .space-hero {
+            padding: 88px 0 56px;
+        }
+
+        .space-hero .kicker {
+            margin: 0 0 22px;
+            font-size: 12px;
+            letter-spacing: .4em;
+            color: var(--accent);
+        }
+
+        .space-hero h1 {
+            margin: 0 0 20px;
+            font-family: var(--font-display);
+            font-size: clamp(36px, 7vw, 56px);
+            font-weight: 600;
+            line-height: 1.22;
+            letter-spacing: .03em;
+        }
+
+        .space-hero p {
+            margin: 0;
+            max-width: 32em;
+            color: var(--muted);
+            font-size: 15.5px;
+        }
+
+        .space-list {
+            border-top: 1px solid var(--line);
+        }
+
+        .space-row {
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            gap: 20px;
+            align-items: baseline;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .space-row .num {
+            font-size: 13px;
+            letter-spacing: .12em;
+            color: var(--muted);
+        }
+
+        .space-row h2 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .space-row h2 a { color: var(--text); }
+        .space-row:hover h2 a { color: var(--accent); }
+
+        .space-row .when {
+            font-size: 12.5px;
+            letter-spacing: .1em;
+            color: var(--muted);
+        }
+
+        /* ---------- 页脚 ---------- */
+        .site-footer {
+            max-width: var(--page-w, 920px);
+            margin: 64px auto 0;
+            padding: 24px 28px;
+            border-top: 1px solid var(--line);
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: .08em;
+            color: var(--muted);
+        }
+
+        .site-footer .dot { color: var(--cinnabar); }
+
+        /* ---------- 预览条 ---------- */
+        .preview-bar {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 8px;
+            border-radius: 999px;
+            background: rgba(28, 41, 37, 0.90);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            font-size: 13px;
+            white-space: nowrap;
+            max-width: 96vw;
+            overflow-x: auto;
+        }
+
+        .preview-bar::-webkit-scrollbar { display: none; }
+
+        .preview-bar .label {
+            color: rgba(255, 255, 255, 0.5);
+            padding: 0 8px;
+            font-size: 11px;
+            letter-spacing: .1em;
+        }
+
+        .preview-bar button {
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.88);
+            font-family: inherit;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        .preview-bar button:hover { background: rgba(255, 255, 255, 0.12); }
+
+        .preview-bar button.active {
+            background: #6fc3ae;
+            color: #14201c;
+            font-weight: 600;
+        }
+
+        .preview-bar .sep {
+            width: 1px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.18);
+            margin: 0 6px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .page { animation: none; }
+            * { transition: none !important; }
+        }
+
+        @media (max-width: 860px) {
+            .header-inner, .scheme-note, .page, .site-footer { padding-left: 20px; padding-right: 20px; }
+
+            .header-inner {
+                flex-wrap: wrap;
+                height: auto;
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+
+            .site-nav { order: 3; width: 100%; justify-content: flex-start; }
+
+            .cover-hero { padding: 28px 22px; }
+            .cover-grid { grid-template-columns: 1fr; }
+
+            .split-wrap { grid-template-columns: 1fr; gap: 36px; }
+            .split-aside { position: static; }
+
+            .bento { grid-template-columns: 1fr; }
+            .bx-feat, .bx-col1, .bx-col2, .bx-p1, .bx-p2, .bx-p3, .bx-about, .bx-stat {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            .space-hero { padding: 56px 0 36px; }
+            .space-row { grid-template-columns: 36px 1fr; }
+            .space-row .when { grid-column: 2; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="preview-bar" role="toolbar" aria-label="主页方案切换">
+        <span class="label">方案</span>
+        <button data-scheme-btn="cover">封面</button>
+        <button data-scheme-btn="split">对开</button>
+        <button data-scheme-btn="journal">手帐</button>
+        <button data-scheme-btn="bento" class="active">书匣</button>
+        <button data-scheme-btn="space">留白</button>
+        <span class="sep"></span>
+        <span class="label">1–5</span>
+    </div>
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="site-title" href="#"><span class="dot"></span>zhaoxin 的博客</a>
+            <nav class="site-nav">
+                <a href="#" class="active">主页</a>
+                <a href="#">专栏</a>
+                <a href="#">随笔</a>
+                <a href="#">归档</a>
+                <a href="#">关于</a>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="切换深浅色">🌙</button>
+        </div>
+    </header>
+
+    <div class="scheme-note">
+        <p id="note-cover" class="is-hidden"><em>01 · 封面</em><strong>杂志特写</strong>首篇铺满视野，近日三卡收束。适合「有一篇想被看见」。</p>
+        <p id="note-split" class="is-hidden"><em>02 · 对开</em><strong>左识右文</strong>左边是人，右边是字。像翻开一本对页的书。</p>
+        <p id="note-journal" class="is-hidden"><em>03 · 手帐</em><strong>时间轴日记</strong>按月落下，像在写手帐。篇幅少时也从容。</p>
+        <p id="note-bento"><em>04 · 书匣</em><strong>一匣收齐</strong>左上是固定题头，专栏、近文、关于同屏。</p>
+        <p id="note-space" class="is-hidden"><em>05 · 留白</em><strong>大字清单</strong>题头占满第一屏，文章只留编号与标题。最克制。</p>
+    </div>
+
+    <!-- ========== 一 · 封面 ========== -->
+    <main class="scheme scheme-cover">
+        <div class="page">
+            <article class="cover-hero">
+                <p class="cover-kicker mono">最新一篇 · 生活随笔</p>
+                <h1 class="cover-title"><a href="#">你好，世界</a></h1>
+                <p class="cover-excerpt">欢迎来到我的博客。这是第一篇，用来验证整条写作与发布的流程。写下文字，让时间有迹可循。</p>
+                <p class="cover-meta mono"><span>08·22</span><span>生活随笔</span><a class="read" href="#">阅读全文 →</a></p>
+            </article>
+
+            <section class="cover-sec">
+                <div class="cover-sec-head">
+                    <h2>近日</h2>
+                    <a href="#">全部文章 →</a>
+                </div>
+                <div class="cover-grid">
+                    <article class="cover-card">
+                        <p class="flag mono">技术学习 · 08·18</p>
+                        <h3><a href="#">Jekyll 深浅色切换踩坑记录</a></h3>
+                        <p>data-theme 初始化、避免首屏闪烁，一条条记下来。</p>
+                    </article>
+                    <article class="cover-card">
+                        <p class="flag mono">生活随笔 · 08·10</p>
+                        <h3><a href="#">夏日傍晚的散步</a></h3>
+                        <p>傍晚七点，天还是亮的。沿着河边走一圈。</p>
+                    </article>
+                    <article class="cover-card">
+                        <p class="flag mono">生活随笔 · 07·30</p>
+                        <h3><a href="#">写给十年后的自己</a></h3>
+                        <p>只希望你还保有写下来的习惯。</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="cover-sec">
+                <div class="cover-sec-head">
+                    <h2>专栏</h2>
+                    <a href="#">全部专栏 →</a>
+                </div>
+                <div class="cover-cols">
+                    <a class="cover-col" href="#">Claude Code <span class="n mono">3 篇</span></a>
+                    <a class="cover-col" href="#">Claude Agent SDK <span class="n mono">2 篇</span></a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ========== 二 · 对开 ========== -->
+    <main class="scheme scheme-split">
+        <div class="page">
+            <div class="split-wrap">
+                <aside class="split-aside">
+                    <h1 class="split-name">zhaoxin</h1>
+                    <p class="split-bio">技术学习的笔记，生活随手的感悟。安静地记下来，真诚地分享出去。</p>
+                    <div class="split-stats">
+                        <div><b>6</b><span class="mono">篇文章</span></div>
+                        <div><b>2</b><span class="mono">个专栏</span></div>
+                    </div>
+                    <nav class="split-links">
+                        <a href="#">专栏 · Claude Code</a>
+                        <a href="#">专栏 · Agent SDK</a>
+                        <a href="#">随笔</a>
+                        <a href="#">关于</a>
+                    </nav>
+                    <p class="split-place mono">2026 · 上海</p>
+                </aside>
+                <div class="split-list">
+                    <article class="split-item">
+                        <p class="meta mono">08·22 · 生活随笔</p>
+                        <h2><a href="#">你好，世界</a></h2>
+                        <p>欢迎来到我的博客。写下文字，让时间有迹可循。</p>
+                    </article>
+                    <article class="split-item">
+                        <p class="meta mono">08·18 · 技术学习</p>
+                        <h2><a href="#">Jekyll 深浅色切换踩坑记录</a></h2>
+                        <p>data-theme 初始化、避免首屏闪烁，与 localStorage 的取舍。</p>
+                    </article>
+                    <article class="split-item">
+                        <p class="meta mono">08·10 · 生活随笔</p>
+                        <h2><a href="#">夏日傍晚的散步</a></h2>
+                        <p>沿着河边走一圈，看云、看水、看遛狗的人慢慢经过。</p>
+                    </article>
+                    <article class="split-item">
+                        <p class="meta mono">07·30 · 生活随笔</p>
+                        <h2><a href="#">写给十年后的自己</a></h2>
+                        <p>不知道十年后你在哪里。只希望你还保有写下来的习惯。</p>
+                    </article>
+                    <article class="split-item">
+                        <p class="meta mono">07·12 · Claude Code</p>
+                        <h2><a href="#">Claude Code 里的 MCP 实践</a></h2>
+                        <p>把常用工具接到对话里，少切几次窗口。</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== 三 · 手帐 ========== -->
+    <main class="scheme scheme-journal">
+        <div class="page">
+            <header class="journal-head">
+                <p class="kicker mono">手帐</p>
+                <h1>按日子写下来。</h1>
+                <p>技术与生活，都落在同一条时间上。</p>
+            </header>
+            <div class="tl">
+                <p class="tl-year">2026</p>
+                <p class="tl-month mono">八月</p>
+                <article class="tl-item">
+                    <p class="when mono">22 · 生活随笔</p>
+                    <h2><a href="#">你好，世界</a></h2>
+                    <p>第一篇。验证整条写作与发布的流程。</p>
+                </article>
+                <article class="tl-item">
+                    <p class="when mono">18 · 技术学习</p>
+                    <h2><a href="#">Jekyll 深浅色切换踩坑记录</a></h2>
+                    <p>首屏不闪、主题能记住，比想象中绕。</p>
+                </article>
+                <article class="tl-item">
+                    <p class="when mono">10 · 生活随笔</p>
+                    <h2><a href="#">夏日傍晚的散步</a></h2>
+                    <p>天还是亮的。河边一圈。</p>
+                </article>
+                <p class="tl-month mono">七月</p>
+                <article class="tl-item">
+                    <p class="when mono">30 · 生活随笔</p>
+                    <h2><a href="#">写给十年后的自己</a></h2>
+                    <p>还写不写博客，都希望你还在写。</p>
+                </article>
+                <article class="tl-item">
+                    <p class="when mono">12 · Claude Code</p>
+                    <h2><a href="#">Claude Code 里的 MCP 实践</a></h2>
+                    <p>工具留在对话里。</p>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== 四 · 书匣 ========== -->
+    <main class="scheme scheme-bento">
+        <div class="page">
+            <div class="bento">
+                <header class="bx bx-feat">
+                    <p class="kicker">记录与分享</p>
+                    <h1>天青色的时光，<br>安静地落进字里行间。</h1>
+                    <p class="lead">zhaoxin 的博客。技术学习与生活随笔，安静地记下来，真诚地分享出去。</p>
+                </header>
+                <article class="bx bx-col bx-col1">
+                    <p class="kicker mono">专栏</p>
+                    <h2><a href="#">Claude Code</a></h2>
+                    <p>日常里用它的心得，收成一册。</p>
+                </article>
+                <article class="bx bx-col bx-col2">
+                    <p class="kicker mono">专栏</p>
+                    <h2><a href="#">Agent SDK</a></h2>
+                    <p>从一次调用，走到一段编排。</p>
+                </article>
+                <article class="bx bx-mini bx-p1">
+                    <p class="kicker mono">08·18</p>
+                    <h2><a href="#">Jekyll 深浅色切换踩坑记录</a></h2>
+                    <p>首屏不闪，比想象中绕。</p>
+                </article>
+                <article class="bx bx-mini bx-p2">
+                    <p class="kicker mono">08·10</p>
+                    <h2><a href="#">夏日傍晚的散步</a></h2>
+                    <p>河边一圈，天还亮着。</p>
+                </article>
+                <article class="bx bx-mini bx-p3">
+                    <p class="kicker mono">07·30</p>
+                    <h2><a href="#">写给十年后的自己</a></h2>
+                    <p>希望你还在写下来。</p>
+                </article>
+                <article class="bx bx-about">
+                    <p class="kicker mono">关于</p>
+                    <h2>zhaoxin</h2>
+                    <p>技术学习与生活随笔。安静地记下来，真诚地分享出去。现居上海。</p>
+                </article>
+                <div class="bx bx-stat">
+                    <div><b>6</b><span class="mono">篇文章</span></div>
+                    <div><b>2</b><span class="mono">个专栏</span></div>
+                    <div><b>26</b><span class="mono">这一年</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== 五 · 留白 ========== -->
+    <main class="scheme scheme-space">
+        <div class="page">
+            <header class="space-hero">
+                <p class="kicker mono">记录与分享</p>
+                <h1>天青色的时光，<br>安静地落进字里行间。</h1>
+                <p>zhaoxin 的博客。技术与生活，都只留下必要的一行。</p>
+            </header>
+            <div class="space-list">
+                <article class="space-row">
+                    <span class="num mono">01</span>
+                    <h2><a href="#">你好，世界</a></h2>
+                    <span class="when mono">08·22</span>
+                </article>
+                <article class="space-row">
+                    <span class="num mono">02</span>
+                    <h2><a href="#">Jekyll 深浅色切换踩坑记录</a></h2>
+                    <span class="when mono">08·18</span>
+                </article>
+                <article class="space-row">
+                    <span class="num mono">03</span>
+                    <h2><a href="#">夏日傍晚的散步</a></h2>
+                    <span class="when mono">08·10</span>
+                </article>
+                <article class="space-row">
+                    <span class="num mono">04</span>
+                    <h2><a href="#">写给十年后的自己</a></h2>
+                    <span class="when mono">07·30</span>
+                </article>
+                <article class="space-row">
+                    <span class="num mono">05</span>
+                    <h2><a href="#">Claude Code 里的 MCP 实践</a></h2>
+                    <span class="when mono">07·12</span>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2026 zhaoxin<span class="dot"> · </span>主页五案预览</p>
+    </footer>
+
+    <script>
+        (function () {
+            'use strict';
+            var root = document.documentElement;
+            var keys = ['cover', 'split', 'journal', 'bento', 'space'];
+
+            function setScheme(name) {
+                if (keys.indexOf(name) === -1) name = 'cover';
+                root.setAttribute('data-scheme', name);
+                document.querySelectorAll('[data-scheme-btn]').forEach(function (b) {
+                    b.classList.toggle('active', b.dataset.schemeBtn === name);
+                });
+                keys.forEach(function (k) {
+                    var el = document.getElementById('note-' + k);
+                    if (el) el.classList.toggle('is-hidden', k !== name);
+                });
+                if (location.hash.slice(1) !== name) {
+                    history.replaceState(null, '', '#' + name);
+                }
+                window.scrollTo(0, 0);
+            }
+
+            document.querySelectorAll('[data-scheme-btn]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    setScheme(btn.dataset.schemeBtn);
+                });
+            });
+
+            window.addEventListener('hashchange', function () {
+                setScheme(location.hash.slice(1));
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.target.matches('input, textarea')) return;
+                var n = parseInt(e.key, 10);
+                if (n >= 1 && n <= 5) setScheme(keys[n - 1]);
+            });
+
+            var themeBtn = document.getElementById('theme-toggle');
+            function renderIcon() {
+                themeBtn.textContent = root.getAttribute('data-theme') === 'dark' ? '☀' : '🌙';
+            }
+            themeBtn.addEventListener('click', function () {
+                root.setAttribute('data-theme',
+                    root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+                renderIcon();
+            });
+            renderIcon();
+
+            setScheme(location.hash.slice(1) || 'bento');
+        })();
+    </script>
+</body>
+
+</html>

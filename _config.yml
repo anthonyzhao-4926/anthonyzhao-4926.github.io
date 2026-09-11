@@ -18,6 +18,7 @@ baseurl: ""                            # 项目站点部署（子路径）时才
 # 不参与构建的文件（预览稿留在仓库，不部署）
 exclude:
   - preview.html
+  - preview-home.html
   - preview-column.html
   - preview-columns.html
   - preview-tags.html
@@ -50,9 +51,6 @@ social:
 # 评论功能（可选，后续可开启 giscus / utterances / disqus）
 comments:
   active: false
-
-# 首页分页：每页展示的文章数
-paginate: 10
 
 # 代码高亮
 kramdown:
