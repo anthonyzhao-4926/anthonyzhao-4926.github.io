@@ -170,8 +170,14 @@
         }
 
         function syncButtons(state) {
-            if (leftBtn) leftBtn.setAttribute('aria-expanded', state.left ? 'true' : 'false');
-            if (rightBtn) rightBtn.setAttribute('aria-expanded', state.right ? 'true' : 'false');
+            if (leftBtn) {
+                leftBtn.setAttribute('aria-expanded', state.left ? 'true' : 'false');
+                leftBtn.title = state.left ? '收起专栏目录' : '展开专栏目录';
+            }
+            if (rightBtn) {
+                rightBtn.setAttribute('aria-expanded', state.right ? 'true' : 'false');
+                rightBtn.title = state.right ? '收起本文目录' : '展开本文目录';
+            }
         }
 
         function applyRailState(state) {
