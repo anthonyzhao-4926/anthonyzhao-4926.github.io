@@ -20,8 +20,13 @@
         }
     }
 
-    var imgs = document.querySelectorAll('img.mermaid-svg');
-    apply(imgs);
+    function applyMermaidSvgs(scope) {
+        var root = scope && scope.querySelectorAll ? scope : document;
+        apply(root.querySelectorAll('img.mermaid-svg'));
+    }
+
+    window.applyMermaidSvgs = applyMermaidSvgs;
+    applyMermaidSvgs(document);
 
     /* theme.js 只改 data-theme 属性、不派发事件，这里用 MutationObserver 跟随 */
     if ('MutationObserver' in window) {

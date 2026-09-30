@@ -87,6 +87,7 @@
 
         function applyPost(url, headerHtml, contentHtml, updateHistory) {
             center.innerHTML = headerHtml + contentHtml;
+            if (window.applyMermaidSvgs) window.applyMermaidSvgs(center);
             buildToc(center, list);
             setCurrent(url);
             if (updateHistory !== false) {
