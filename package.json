@@ -2,6 +2,10 @@
     "name": "anthonyzhao-blog",
     "private": true,
     "description": "博客构建期依赖：mermaid-cli 用于 mermaid 图表服务端渲染（见 _plugins/mermaid.rb）",
+    "scripts": {
+        "install:chromium": "puppeteer browsers install chrome-headless-shell",
+        "serve": "bash scripts/dev-serve.sh"
+    },
     "devDependencies": {
         "@mermaid-js/mermaid-cli": "^11.0.0"
     }

@@ -5,6 +5,77 @@
     'use strict';
 
     var scrollHandler = null;
+    var pinnedLink = null;
+    var ignoreProgrammaticScroll = false;
+
+    function maxScrollY() {
+        return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    }
+
+    function padLastHeading(center) {
+        var heads = center.querySelectorAll('h2, h3');
+        if (!heads.length) return;
+        var last = heads[heads.length - 1];
+        var spacer = center.querySelector('.toc-end-spacer');
+        if (!spacer) {
+            spacer = document.createElement('div');
+            spacer.className = 'toc-end-spacer';
+            spacer.setAttribute('aria-hidden', 'true');
+            center.appendChild(spacer);
+        }
+        spacer.style.height = '0px';
+        var margin = parseFloat(window.getComputedStyle(last).scrollMarginTop) || 96;
+        var lastTop = last.getBoundingClientRect().top + window.pageYOffset;
+        var extra = lastTop - margin - maxScrollY();
+        spacer.style.height = (extra > 0 ? extra : 0) + 'px';
+    }
+
+    function scrollToSection(id) {
+        var target = document.getElementById(id);
+        if (!target) return;
+        var margin = parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
+        var top = target.getBoundingClientRect().top + window.pageYOffset - margin;
+        if (top < 0) top = 0;
+        var root = document.documentElement;
+        var prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        ignoreProgrammaticScroll = true;
+        window.scrollTo(0, Math.min(top, maxScrollY()));
+        root.style.scrollBehavior = prev;
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                ignoreProgrammaticScroll = false;
+            });
+        });
+    }
+
+    function bindTocClicks(listEl, columnShell, colBase) {
+        listEl.addEventListener('click', function (tocClick) {
+            var a = tocClick.target.closest('a');
+            if (!a || !listEl.contains(a)) return;
+            var href = a.getAttribute('href');
+            if (!href || href.charAt(0) !== '#') return;
+            var id = href.slice(1);
+            if (!id) return;
+            tocClick.preventDefault();
+            pinnedLink = a;
+            scrollToSection(id);
+            listEl.querySelectorAll('a.active').forEach(function (link) {
+                link.classList.remove('active');
+            });
+            a.classList.add('active');
+            /* 专栏 SPA 用 #/posts/... 存当前文，目录锚点不能改掉 hash，否则会误载第一篇 */
+            if (columnShell && history.state && history.state.url) {
+                try {
+                    history.replaceState(
+                        history.state,
+                        '',
+                        colBase + '#/' + encodeURIComponent(history.state.url)
+                    );
+                } catch (replaceHashErr) { /* ignore */ }
+            }
+        });
+    }
 
     function buildToc(center, list) {
         list.innerHTML = '';
@@ -40,16 +111,27 @@
         });
 
         scrollHandler = function () {
+            if (ignoreProgrammaticScroll) return;
+            pinnedLink = null;
             var pos = window.scrollY + 140;
             var cur = -1;
             items.forEach(function (it, i) {
                 if (it.el.getBoundingClientRect().top + window.scrollY <= pos) cur = i;
             });
+            var last = items[items.length - 1];
+            if (last) {
+                var lastTop = last.el.getBoundingClientRect().top + window.scrollY;
+                var maxY = maxScrollY();
+                if (lastTop > maxY + 140 && window.scrollY >= maxY - 2) {
+                    cur = items.length - 1;
+                }
+            }
             items.forEach(function (it, i) {
                 it.link.classList.toggle('active', i === cur);
             });
         };
         window.addEventListener('scroll', scrollHandler, { passive: true });
+        padLastHeading(center);
         scrollHandler();
     }
 
@@ -59,6 +141,8 @@
     var center = document.querySelector('.toc-source');
     var list = document.getElementById('col-toc');
     if (!center || !list) return;
+
+    bindTocClicks(list, shell, shell ? (shell.getAttribute('data-column') || location.pathname) : '');
 
     if (!wrap) {
         buildToc(center, list);
@@ -140,8 +224,33 @@
         }
 
         window.addEventListener('popstate', function () {
-            var url = hashUrl() || firstUrl;
-            if (url) loadPost(url, false);
+            var url = hashUrl();
+            if (url) {
+                loadPost(url, false);
+                return;
+            }
+            if (firstUrl) loadPost(firstUrl, false);
+        });
+
+        window.addEventListener('hashchange', function () {
+            var post = hashUrl();
+            if (post) {
+                loadPost(post, false);
+                return;
+            }
+            var frag = location.hash.slice(1);
+            if (frag.indexOf('col-sec-') === 0) {
+                scrollToSection(frag);
+                if (history.state && history.state.url) {
+                    try {
+                        history.replaceState(
+                            history.state,
+                            '',
+                            colBase + '#/' + encodeURIComponent(history.state.url)
+                        );
+                    } catch (restoreHashErr) { /* ignore */ }
+                }
+            }
         });
 
         var deep = hashUrl();
@@ -172,11 +281,13 @@
         function syncButtons(state) {
             if (leftBtn) {
                 leftBtn.setAttribute('aria-expanded', state.left ? 'true' : 'false');
-                leftBtn.title = state.left ? '收起专栏目录' : '展开专栏目录';
+                leftBtn.setAttribute('aria-label', state.left ? '隐藏专栏目录' : '显示专栏目录');
+                leftBtn.title = state.left ? '隐藏专栏目录' : '显示专栏目录';
             }
             if (rightBtn) {
                 rightBtn.setAttribute('aria-expanded', state.right ? 'true' : 'false');
-                rightBtn.title = state.right ? '收起本文目录' : '展开本文目录';
+                rightBtn.setAttribute('aria-label', state.right ? '隐藏本文目录' : '显示本文目录');
+                rightBtn.title = state.right ? '隐藏本文目录' : '显示本文目录';
             }
         }
 
@@ -184,6 +295,7 @@
             wrap.classList.toggle('show-left', !!state.left);
             wrap.classList.toggle('show-right', !!state.right);
             syncButtons(state);
+            padLastHeading(center);
         }
 
         function toggleRail(side) {
@@ -204,4 +316,7 @@
     }
 
     buildToc(center, list);
+    window.addEventListener('resize', function () {
+        padLastHeading(center);
+    });
 })();

@@ -1,34 +1,17 @@
 {% if include.left %}
-<button type="button" class="col-rail-btn col-rail-btn--left" id="col-rail-left" aria-controls="col-rail-panel-left" aria-expanded="false" title="展开专栏目录">
-    <svg class="col-rail-icon col-rail-icon--expand" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 4v16"></path>
-        <path d="M5 12h11"></path>
-        <path d="M13 9l4 3-4 3"></path>
+<button type="button" class="col-rail-btn col-rail-btn--left" id="col-rail-left" aria-controls="col-rail-panel-left" aria-expanded="false" aria-label="显示专栏目录" title="专栏目录">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="8" height="16" rx="1"></rect>
+        <path d="M14 8h7"></path>
+        <path d="M14 12h5"></path>
+        <path d="M14 16h7"></path>
     </svg>
-    <svg class="col-rail-icon col-rail-icon--collapse" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M19 4v16"></path>
-        <path d="M19 12H8"></path>
-        <path d="M11 9l-4 3 4 3"></path>
-    </svg>
-    <span class="col-rail-text">
-        <span class="col-rail-text-expand">展开专栏</span>
-        <span class="col-rail-text-collapse">收起专栏</span>
-    </span>
 </button>
 {% endif %}
-<button type="button" class="col-rail-btn col-rail-btn--right" id="col-rail-right" aria-controls="col-rail-panel-right" aria-expanded="false" title="展开本文目录">
-    <svg class="col-rail-icon col-rail-icon--expand" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M19 4v16"></path>
-        <path d="M19 12H8"></path>
-        <path d="M11 9l-4 3 4 3"></path>
+<button type="button" class="col-rail-btn col-rail-btn--right" id="col-rail-right" aria-controls="col-rail-panel-right" aria-expanded="false" aria-label="显示本文目录" title="本文目录">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 6h16"></path>
+        <path d="M4 12h10"></path>
+        <path d="M4 18h14"></path>
     </svg>
-    <svg class="col-rail-icon col-rail-icon--collapse" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 4v16"></path>
-        <path d="M5 12h11"></path>
-        <path d="M13 9l4 3-4 3"></path>
-    </svg>
-    <span class="col-rail-text">
-        <span class="col-rail-text-expand">展开目录</span>
-        <span class="col-rail-text-collapse">收起目录</span>
-    </span>
 </button>

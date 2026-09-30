@@ -664,38 +664,33 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     padding: 56px 0 16px;
 }
 
-/* 普通文章：默认正文通栏，展开右侧目录时挤占布局 */
+/* 普通文章：中间栏位置与「两侧目录都打开」时一致 */
 .post-shell {
-    --col-right-width: 260px;
+    --col-left-width: 260px;
+    --col-right-width: 248px;
+    width: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: var(--col-left-width) minmax(0, 1fr) var(--col-right-width);
     gap: 0;
     align-items: start;
-    transition: grid-template-columns .25s ease;
 }
 
-.post-shell.show-right {
-    grid-template-columns: minmax(0, 1fr) var(--col-right-width);
+.post-shell .post {
+    grid-column: 2;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 48px 28px 0;
+    box-sizing: border-box;
 }
 
 .post-shell .col-right {
+    grid-column: 3;
     display: none;
 }
 
 .post-shell.show-right .col-right {
     display: block;
-}
-
-.post-shell:not(.show-right) .post {
-    max-width: min(760px, 100%);
-    margin-inline: auto;
-    width: 100%;
-}
-
-.post-shell .post {
-    min-width: 0;
-    padding: 48px clamp(20px, 4vw, 56px) 0;
-    box-sizing: border-box;
 }
 
 .page-title {
@@ -1399,7 +1394,7 @@ body.is-home .site-footer {
     color: var(--cinnabar);
 }
 
-/* ---------- 专栏页：三栏阅读式（左目录 / 中正文 / 右本文目录） ---------- */
+/* ---------- 专栏 / 文章阅读：目录贴视口两侧，中间最宽 1340px ---------- */
 .main-content.wide {
     max-width: none;
     width: 100%;
@@ -1408,26 +1403,25 @@ body.is-home .site-footer {
 }
 
 .column-shell {
-    --col-left-width: 280px;
-    --col-right-width: 260px;
+    --col-left-width: 260px;
+    --col-right-width: 248px;
+    width: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: var(--col-left-width) minmax(0, 1fr) var(--col-right-width);
     gap: 0;
     align-items: start;
-    padding-top: 0;
-    transition: grid-template-columns .25s ease;
 }
 
-.column-shell.show-left:not(.show-right) {
-    grid-template-columns: var(--col-left-width) minmax(0, 1fr);
+.column-shell .col-left {
+    grid-column: 1;
 }
 
-.column-shell.show-right:not(.show-left) {
-    grid-template-columns: minmax(0, 1fr) var(--col-right-width);
+.column-shell .col-main {
+    grid-column: 2;
 }
 
-.column-shell.show-left.show-right {
-    grid-template-columns: var(--col-left-width) minmax(0, 1fr) var(--col-right-width);
+.column-shell .col-right {
+    grid-column: 3;
 }
 
 .column-shell .col-left,
@@ -1447,28 +1441,25 @@ body.is-home .site-footer {
     max-height: calc(100vh - 64px);
     overflow-y: auto;
     min-width: 0;
+    padding: 52px 18px 36px 20px;
     background: var(--bg);
 }
 
 .col-left {
-    padding: 52px 14px 32px 16px;
     border-right: 1px solid var(--line);
 }
 
 .col-right {
-    padding: 52px 16px 32px 14px;
-    border-left: 1px solid var(--line);
-}
-
-.column-shell:not(.show-left):not(.show-right) .col-main {
-    max-width: min(760px, 100%);
-    margin-inline: auto;
-    width: 100%;
+    padding-left: 20px;
+    padding-right: 18px;
 }
 
 .col-main {
-    padding: 48px clamp(20px, 4vw, 56px) 0;
+    width: 100%;
+    max-width: none;
+    padding: 48px 28px 0;
     min-width: 0;
+    box-sizing: border-box;
 }
 
 /* 侧栏滚动容器：隐藏滚动条（保持滚轮可滚动），与顶部导航一致 */
@@ -1486,10 +1477,11 @@ body.is-home .site-footer {
 }
 
 .col-left-title {
-    margin: 0 0 4px;
+    margin: 0 0 8px;
     font-family: var(--font-display);
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 600;
+    line-height: 1.45;
 }
 
 .col-left-title a {
@@ -1518,7 +1510,7 @@ body.is-home .site-footer {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 11px 12px;
+    padding: 11px 0 11px 12px;
     color: var(--muted);
     font-size: 14px;
     line-height: 1.5;
@@ -1646,6 +1638,10 @@ body.is-home .site-footer {
     scroll-margin-top: 96px;
 }
 
+.toc-end-spacer {
+    pointer-events: none;
+}
+
 /* 右栏：本文目录 */
 .col-toc-label {
     margin: 0 0 12px;
@@ -1703,78 +1699,68 @@ body.is-home .site-footer {
     color: var(--muted);
 }
 
-/* 左右贴边按钮：顶栏下沿，侧栏展开时贴在侧栏内缘 */
+/* 贴边图标按钮：平时只露一条边，悬停滑出 */
 .col-rail-btn {
     position: fixed;
     top: 64px;
-    z-index: 101;
-    display: inline-flex;
+    z-index: 99;
+    display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    padding: 0;
     border: 1px solid var(--line);
     border-top: none;
     background: var(--card);
     color: var(--muted);
-    padding: 7px 11px 9px;
-    white-space: nowrap;
     cursor: pointer;
-    box-shadow: var(--shadow);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: .06em;
-    transition: left .25s ease, right .25s ease, color .2s, border-color .2s, background .2s;
+    transition: transform .22s ease, color .2s, border-color .2s, background .2s;
+}
+
+.col-rail-btn::after {
+    content: "";
+    position: absolute;
+    top: -8px;
+    bottom: -8px;
+    width: 18px;
 }
 
 .col-rail-btn--left {
     left: 0;
     border-left: none;
     border-radius: 0 0 10px 0;
+    transform: translateX(calc(-100% + 6px));
 }
 
-.column-shell.show-left .col-rail-btn--left {
-    left: var(--col-left-width);
-    transform: translateX(-100%);
-    border-left: 1px solid var(--line);
-    border-radius: 0 0 0 10px;
+.col-rail-btn--left::after {
+    left: 100%;
 }
 
 .col-rail-btn--right {
     right: 0;
     border-right: none;
     border-radius: 0 0 0 10px;
+    transform: translateX(calc(100% - 6px));
 }
 
-.column-shell.show-right .col-rail-btn--right,
-.post-shell.show-right .col-rail-btn--right {
-    right: var(--col-right-width);
-    transform: translateX(100%);
-    border-right: 1px solid var(--line);
-    border-radius: 0 0 10px 0;
+.col-rail-btn--right::after {
+    right: 100%;
 }
 
-.col-rail-icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    stroke: currentColor;
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.col-rail-btn[aria-expanded="false"] .col-rail-icon--collapse,
-.col-rail-btn[aria-expanded="true"] .col-rail-icon--expand {
-    display: none;
-}
-
-.col-rail-btn[aria-expanded="false"] .col-rail-text-collapse,
-.col-rail-btn[aria-expanded="true"] .col-rail-text-expand {
-    display: none;
+.col-rail-btn svg {
+    width: 15px;
+    height: 15px;
 }
 
 .col-rail-btn:hover,
-.col-rail-btn:focus-visible,
+.col-rail-btn:focus-visible {
+    transform: translateX(0);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
 .col-rail-btn[aria-expanded="true"] {
     color: var(--accent);
     border-color: var(--accent);
@@ -1787,11 +1773,17 @@ body.is-home .site-footer {
         max-width: 100%;
     }
 
-    .column-shell.show-left.show-right,
-    .column-shell.show-left:not(.show-right),
-    .column-shell.show-right:not(.show-left),
-    .post-shell.show-right {
+    .column-shell,
+    .post-shell {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .column-shell .col-left,
+    .column-shell .col-main,
+    .column-shell .col-right,
+    .post-shell .post,
+    .post-shell .col-right {
+        grid-column: auto;
     }
 
     .column-shell.show-left .col-left,

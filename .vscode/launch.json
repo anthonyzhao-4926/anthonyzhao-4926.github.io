@@ -5,7 +5,7 @@
       "name": "Jekyll Serve",
       "type": "node-terminal",
       "request": "launch",
-      "command": "bundle exec jekyll serve --livereload",
+      "command": "npm run serve",
       "cwd": "${workspaceFolder}",
       "autoReload": true
     },
