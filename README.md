@@ -42,6 +42,7 @@
 
    ```bash
    bundle install
+   npm install          # mermaid 图表构建期渲染（mmdc），未安装时会保留代码块
    bundle exec jekyll serve
    # 访问 http://127.0.0.1:4000
    ```

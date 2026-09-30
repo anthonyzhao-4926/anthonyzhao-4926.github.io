@@ -25,7 +25,7 @@ order: 1
                 <span class="n mono"><span class="js-count" data-count-published="{{ pub_posts | size }}" data-count-all="{{ col_posts | size }}">{{ pub_posts | size }}</span> 篇</span>
             </span>
             {% if column.description and column.description != "" %}
-            <p>{{ column.description }}</p>
+            <p>{{ column.description | truncate: 48 }}</p>
             {% endif %}
         </a>
         {% endfor %}

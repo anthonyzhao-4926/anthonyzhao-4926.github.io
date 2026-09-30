@@ -67,6 +67,12 @@ module Jekyll
         FAILED.clear
         mmdc = find_mmdc(site)
         items.each { |item| render_one(site, mmdc, item) }
+        unless STRICT
+          items.each do |item|
+            base = "#{item[:slug]}-#{item[:index]}"
+            restore_code_block(site, item) if FAILED.include?(base)
+          end
+        end
         return unless STRICT && !FAILED.empty?
 
         raise "Mermaid 渲染失败: #{FAILED.join(', ')}（详见 _site/assets/mermaid/mermaid-error.log）"
@@ -91,8 +97,9 @@ module Jekyll
         File.delete(tmp) if File.exist?(tmp)
         return if ok
 
-        Jekyll.logger.warn 'Mermaid:', "渲染失败 #{base}，页面中对应图表将缺失"
+        Jekyll.logger.warn 'Mermaid:', "渲染失败 #{base}#{'，已回退为代码块' unless STRICT}"
         FAILED << base
+        [light, dark].each { |path| File.delete(path) if File.exist?(path) }
         # 错误日志写入部署产物，便于线上排查（见 /assets/mermaid/mermaid-error.log）
         log = File.join(dir, 'mermaid-error.log')
         File.open(log, 'a') do |f|
@@ -105,9 +112,27 @@ module Jekyll
         %(<img class="mermaid-svg" data-light="#{url}.light.svg" data-dark="#{url}.dark.svg" alt="mermaid 图表" loading="lazy">)
       end
 
+      # 渲染失败时把已写入 _site 的 <img> 还原为代码块，避免浏览器显示破损图标
+      def restore_code_block(site, item)
+        base = "#{item[:slug]}-#{item[:index]}"
+        img_pattern = %r{<img class="mermaid-svg"[^>]*data-light="[^"]*#{Regexp.escape(base)}\.light\.svg"[^>]*>}
+        pre = %(<pre><code class="language-mermaid">#{CGI.escapeHTML(item[:code])}</code></pre>)
+
+        Dir.glob(File.join(site.dest, '**', '*.html')).each do |path|
+          content = File.read(path, encoding: 'UTF-8')
+          next unless content.include?(base)
+
+          updated = content.gsub(img_pattern, pre)
+          File.write(path, updated) if updated != content
+        end
+      end
+
       def find_mmdc(site)
         local = File.join(site.source, 'node_modules', '.bin', 'mmdc')
         return local if File.executable?(local)
+
+        cli = File.join(site.source, 'node_modules', '@mermaid-js', 'mermaid-cli', 'src', 'cli.js')
+        return cli if File.file?(cli)
 
         # 回退到 PATH 中的 mmdc（如全局安装）
         return 'mmdc' if system('command -v mmdc > /dev/null 2>&1')
