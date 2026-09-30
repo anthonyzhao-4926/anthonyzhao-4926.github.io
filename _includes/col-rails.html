@@ -1,0 +1,22 @@
+<div class="col-rail-backdrop" id="col-rail-backdrop" hidden aria-hidden="true"></div>
+{% if include.left %}
+<button type="button" class="col-rail-btn col-rail-btn--left" id="col-rail-left" aria-controls="col-rail-panel-left" aria-expanded="false" title="专栏目录">
+    <svg class="col-rail-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 6h13"></path>
+        <path d="M8 12h13"></path>
+        <path d="M8 18h13"></path>
+        <path d="M3 6h.01"></path>
+        <path d="M3 12h.01"></path>
+        <path d="M3 18h.01"></path>
+    </svg>
+    <span class="label">专栏</span>
+</button>
+{% endif %}
+<button type="button" class="col-rail-btn col-rail-btn--right" id="col-rail-right" aria-controls="col-rail-panel-right" aria-expanded="false" title="本文目录">
+    <svg class="col-rail-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 6h16"></path>
+        <path d="M4 12h10"></path>
+        <path d="M4 18h14"></path>
+    </svg>
+    <span class="label">目录</span>
+</button>

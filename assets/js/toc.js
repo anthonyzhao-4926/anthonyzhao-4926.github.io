@@ -1,6 +1,6 @@
 /* 文章右侧目录：
    1) 扫描 .toc-source 的 h2/h3 生成，并随滚动高亮当前小节
-   2) 专栏页额外支持左栏切换、深链与全宽 */
+   2) 专栏页额外支持左栏切换、深链与贴边目录抽屉 */
 (function () {
     'use strict';
 
@@ -149,26 +149,69 @@
         else if (shell.getAttribute('data-landing') === 'true' && firstUrl) loadPost(firstUrl, false);
     }
 
-    var toggleBtn = document.getElementById('col-toggle');
-    if (toggleBtn) {
-        var savedMode = null;
-        try { savedMode = localStorage.getItem('col-mode'); } catch (readModeErr) { }
-        if (savedMode === 'full') wrap.classList.add('fullwidth');
+    var leftBtn = document.getElementById('col-rail-left');
+    var rightBtn = document.getElementById('col-rail-right');
+    var backdrop = document.getElementById('col-rail-backdrop');
+    if (wrap && (leftBtn || rightBtn)) {
+        var storageKey = shell ? 'col-rail-column' : 'col-rail-post';
 
-        function renderToggle() {
-            var full = wrap.classList.contains('fullwidth');
-            var label = toggleBtn.querySelector('.label');
-            if (label) label.textContent = full ? '默认' : '全宽';
-            toggleBtn.setAttribute('aria-pressed', full ? 'true' : 'false');
-        }
-        toggleBtn.addEventListener('click', function () {
-            wrap.classList.toggle('fullwidth');
+        function readRailState() {
             try {
-                localStorage.setItem('col-mode', wrap.classList.contains('fullwidth') ? 'full' : 'default');
-            } catch (saveModeErr) { }
-            renderToggle();
-        });
-        renderToggle();
+                var raw = localStorage.getItem(storageKey);
+                return raw ? JSON.parse(raw) : { left: false, right: false };
+            } catch (readRailErr) {
+                return { left: false, right: false };
+            }
+        }
+
+        function writeRailState(state) {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(state));
+            } catch (writeRailErr) { /* ignore */ }
+        }
+
+        function syncBackdrop() {
+            if (!backdrop) return;
+            var open = wrap.classList.contains('show-left') || wrap.classList.contains('show-right');
+            backdrop.hidden = !open;
+            backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        function syncButtons(state) {
+            if (leftBtn) leftBtn.setAttribute('aria-expanded', state.left ? 'true' : 'false');
+            if (rightBtn) rightBtn.setAttribute('aria-expanded', state.right ? 'true' : 'false');
+            syncBackdrop();
+        }
+
+        function applyRailState(state) {
+            wrap.classList.toggle('show-left', !!state.left);
+            wrap.classList.toggle('show-right', !!state.right);
+            syncButtons(state);
+        }
+
+        function toggleRail(side) {
+            var state = readRailState();
+            state[side] = !state[side];
+            applyRailState(state);
+            writeRailState(state);
+        }
+
+        var initial = readRailState();
+        applyRailState(initial);
+
+        if (leftBtn) {
+            leftBtn.addEventListener('click', function () { toggleRail('left'); });
+        }
+        if (rightBtn) {
+            rightBtn.addEventListener('click', function () { toggleRail('right'); });
+        }
+        if (backdrop) {
+            backdrop.addEventListener('click', function () {
+                applyRailState({ left: false, right: false });
+                writeRailState({ left: false, right: false });
+            });
+        }
     }
 
     buildToc(center, list);
