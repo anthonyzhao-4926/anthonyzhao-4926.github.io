@@ -1137,67 +1137,68 @@ html:not([data-show-drafts]) .archive-month:not(:has([data-viewable="true"])) {
     color: var(--accent);
 }
 
-/* ---------- 专栏总览：双列目次（疏） ---------- */
-.airy-grid {
+/* ---------- 专栏总览：双列卡片 ---------- */
+.cols-cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: 48px;
-    padding-top: 8px;
+    gap: 14px;
+    padding-top: 20px;
 }
 
-a.airy {
-    display: block;
-    padding: 22px 0 20px;
-    border-bottom: 1px solid var(--line);
+a.cols-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 148px;
+    padding: 20px 20px 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--text);
+    transition: border-color .2s, transform .2s, background .2s;
+}
+
+a.cols-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    transform: translateY(-2px);
     color: var(--text);
 }
 
-a.airy:hover {
-    color: var(--accent);
-}
-
-.airy-top {
+.cols-card-top {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
     gap: 12px;
 }
 
-.airy-top .num {
-    font-size: 12px;
-    letter-spacing: .08em;
-    color: var(--muted);
-    width: 28px;
-    flex-shrink: 0;
-}
-
-.airy-top h2 {
-    flex: 1;
+.cols-card-top h2 {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     line-height: 1.35;
 }
 
-.airy-top .n {
-    font-size: 12px;
-    color: var(--muted);
-    flex-shrink: 0;
+a.cols-card:hover .cols-card-top h2 {
+    color: var(--accent);
 }
 
-a.airy p {
-    margin: 8px 0 0 40px;
+.cols-card-top .n {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    color: var(--muted);
+}
+
+a.cols-card p {
+    margin: 0;
     font-size: 13.5px;
-    line-height: 1.75;
+    line-height: 1.7;
     color: var(--muted);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-}
-
-a.airy:hover p {
-    color: var(--muted);
 }
 
 /* ---------- 全站搜索 ---------- */
@@ -1829,9 +1830,8 @@ body.is-home .site-footer {
         padding: 36px 0 28px;
     }
 
-    .airy-grid {
+    .cols-cards {
         grid-template-columns: 1fr;
-        column-gap: 0;
     }
 }
 
