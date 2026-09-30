@@ -151,7 +151,6 @@
 
     var leftBtn = document.getElementById('col-rail-left');
     var rightBtn = document.getElementById('col-rail-right');
-    var backdrop = document.getElementById('col-rail-backdrop');
     if (wrap && (leftBtn || rightBtn)) {
         var storageKey = shell ? 'col-rail-column' : 'col-rail-post';
 
@@ -170,18 +169,9 @@
             } catch (writeRailErr) { /* ignore */ }
         }
 
-        function syncBackdrop() {
-            if (!backdrop) return;
-            var open = wrap.classList.contains('show-left') || wrap.classList.contains('show-right');
-            backdrop.hidden = !open;
-            backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
-            document.body.style.overflow = open ? 'hidden' : '';
-        }
-
         function syncButtons(state) {
             if (leftBtn) leftBtn.setAttribute('aria-expanded', state.left ? 'true' : 'false');
             if (rightBtn) rightBtn.setAttribute('aria-expanded', state.right ? 'true' : 'false');
-            syncBackdrop();
         }
 
         function applyRailState(state) {
@@ -197,20 +187,13 @@
             writeRailState(state);
         }
 
-        var initial = readRailState();
-        applyRailState(initial);
+        applyRailState(readRailState());
 
         if (leftBtn) {
             leftBtn.addEventListener('click', function () { toggleRail('left'); });
         }
         if (rightBtn) {
             rightBtn.addEventListener('click', function () { toggleRail('right'); });
-        }
-        if (backdrop) {
-            backdrop.addEventListener('click', function () {
-                applyRailState({ left: false, right: false });
-                writeRailState({ left: false, right: false });
-            });
         }
     }
 
