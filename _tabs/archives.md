@@ -13,7 +13,7 @@ nav: false
 <h2>{{ group.name }}</h2>
 <ul>
 {% for post in group.items %}
-<li data-viewable="{{ post.viewable }}"><a href="{{ post.url | relative_url }}">{{ post.title }}</a>{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %} · {{ post.date | date: "%Y-%m-%d" }}</li>
+<li data-viewable="{{ post.viewable }}"><a href="{{ post.html_url | default: post.url | relative_url }}">{{ post.title }}</a>{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %} · {{ post.date | date: "%Y-%m-%d" }}</li>
 {% endfor %}
 </ul>
 </section>

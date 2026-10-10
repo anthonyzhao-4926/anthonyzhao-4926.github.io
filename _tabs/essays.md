@@ -22,7 +22,7 @@ order: 2
         </div>
         <div class="post-body">
             {% unless post.viewable %}<p class="post-flag mono"><span class="flag-dot"></span><span class="draft-badge">草稿</span></p>{% endunless %}
-            <h2 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+            <h2 class="post-title"><a href="{{ post.html_url | default: post.url | relative_url }}">{{ post.title }}</a></h2>
             {% if post.excerpt %}<p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</p>{% endif %}
         </div>
     </article>

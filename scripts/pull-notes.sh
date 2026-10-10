@@ -5,7 +5,11 @@
 # 仓库列表见 scripts/notes-repos.txt(名称 地址 每行一个)。
 # 各仓库根目录 config.yml(旧版 columns.yml 自动兼容)提供:
 #   columns: 本仓库专栏配置,聚合到站点 _data/columns.yml;
-#   exclude: 不发布的 md 文件/文件夹(相对仓库根目录),遍历时跳过。
+#   exclude: 不发布的 md/html 文件/文件夹(相对仓库根目录),遍历时跳过。
+# 除 .md 外也支持 .html/.htm 笔记(自带样式/脚本的完整 HTML 文档):
+#   原样拷贝到 assets/notes/<仓库名>/ 下作为静态资源,各列表入口直接链接到该页面,
+#   文档作为完整页面独立渲染;元数据写在文件开头的 <!-- ... --> 注释块,
+#   语法同 YAML front matter(title/column/order/viewable),title 缺省时回退 <title> 标签。
 # 由 GitHub Actions 构建前运行;本地手动运行时也会临时 clone。
 # ==========================================================
 set -euo pipefail
@@ -29,6 +33,27 @@ is_excluded() {
     esac
   done
   return 1
+}
+
+# 从 HTML 文件开头的 <!-- ... --> 注释块提取元数据(用法: html_meta <key> <文件>);
+# 约定注释块独占首行开始,块内写法同 YAML front matter,如:
+#   <!--
+#   title: 事件生命周期
+#   column: dsh-plugin
+#   -->
+html_meta() {
+  awk -v key="$1" '
+    NR==1 && $0 ~ /^[[:space:]]*<!--[[:space:]]*$/ { inm=1; next }
+    inm && $0 ~ /-->/ { exit }
+    inm && $0 ~ "^" key ":[[:space:]]*" {
+      line = $0
+      sub("^" key ":[[:space:]]*", "", line)
+      sub(/[[:space:]]+$/, "", line)
+      gsub(/^["'\'']+|["'\'']+$/, "", line)
+      print line
+      exit
+    }
+  ' "$2"
 }
 
 [ -f "$REPOS_FILE" ] || { echo "❌ 未找到仓库列表 $REPOS_FILE"; exit 1; }
@@ -121,7 +146,7 @@ while read -r name url; do
     fi
   fi
 
-  # 递归遍历仓库内所有 .md(跳过 exclude 命中的文件/文件夹与 README 索引文件,保留子目录结构以免同名冲突)
+  # 递归遍历仓库内所有 .md/.html/.htm(跳过 exclude 命中的文件/文件夹与 README 索引文件,保留子目录结构以免同名冲突)
   count=0
   while IFS= read -r -d '' f; do
     rel="${f#"$src"/}"
@@ -136,48 +161,58 @@ while read -r name url; do
     date=$(git -C "$src" log -1 --format=%cs -- "$rel" 2>/dev/null || true)
     [ -z "$date" ] && date=$(git -C "$src" log -1 --format=%cs 2>/dev/null || true)
 
-    slug="${base%.md}"
-    # 源文件若已有 YAML front matter,取其 title/column/order/viewable,正文不再展示这段元数据
-    src_title=$(awk '
-      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
-      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
-      fm==1 && $0 ~ /^title:[[:space:]]*/ {
-        sub(/^title:[[:space:]]*/, "")
-        gsub(/^["'\'']+|["'\'']+$/, "")
-        print
-        exit
-      }
-    ' "$f")
-    src_column=$(awk '
-      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
-      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
-      fm==1 && $0 ~ /^column:[[:space:]]*/ {
-        sub(/^column:[[:space:]]*/, "")
-        gsub(/^["'\'']+|["'\'']+$/, "")
-        print
-        exit
-      }
-    ' "$f")
-    src_order=$(awk '
-      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
-      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
-      fm==1 && $0 ~ /^order:[[:space:]]*/ {
-        sub(/^order:[[:space:]]*/, "")
-        gsub(/^["'\'']+|["'\'']+$/, "")
-        print
-        exit
-      }
-    ' "$f")
-    src_viewable=$(awk '
-      NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
-      fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
-      fm==1 && $0 ~ /^viewable:[[:space:]]*/ {
-        sub(/^viewable:[[:space:]]*/, "")
-        gsub(/^["'\'']+|["'\'']+$/, "")
-        print
-        exit
-      }
-    ' "$f")
+    ext_lc=$(printf '%s' "${base##*.}" | tr '[:upper:]' '[:lower:]')
+    slug="${base%.*}"
+    if [ "$ext_lc" = "md" ]; then
+      # 源文件若已有 YAML front matter,取其 title/column/order/viewable,正文不再展示这段元数据
+      src_title=$(awk '
+        NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+        fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+        fm==1 && $0 ~ /^title:[[:space:]]*/ {
+          sub(/^title:[[:space:]]*/, "")
+          gsub(/^["'\'']+|["'\'']+$/, "")
+          print
+          exit
+        }
+      ' "$f")
+      src_column=$(awk '
+        NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+        fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+        fm==1 && $0 ~ /^column:[[:space:]]*/ {
+          sub(/^column:[[:space:]]*/, "")
+          gsub(/^["'\'']+|["'\'']+$/, "")
+          print
+          exit
+        }
+      ' "$f")
+      src_order=$(awk '
+        NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+        fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+        fm==1 && $0 ~ /^order:[[:space:]]*/ {
+          sub(/^order:[[:space:]]*/, "")
+          gsub(/^["'\'']+|["'\'']+$/, "")
+          print
+          exit
+        }
+      ' "$f")
+      src_viewable=$(awk '
+        NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+        fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+        fm==1 && $0 ~ /^viewable:[[:space:]]*/ {
+          sub(/^viewable:[[:space:]]*/, "")
+          gsub(/^["'\'']+|["'\'']+$/, "")
+          print
+          exit
+        }
+      ' "$f")
+    else
+      # HTML 文档:元数据取文件开头 <!-- ... --> 注释块(见 html_meta);title 缺省回退 <title> 标签,再回退文件名
+      src_title=$(html_meta title "$f")
+      [ -z "$src_title" ] && src_title=$(sed -n 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/p' "$f" | head -1)
+      src_column=$(html_meta column "$f")
+      src_order=$(html_meta order "$f")
+      src_viewable=$(html_meta viewable "$f")
+    fi
     title="${src_title:-$slug}"
     yaml_title=${title//\\/\\\\}
     yaml_title=${yaml_title//\"/\\\"}
@@ -189,8 +224,14 @@ while read -r name url; do
       mkdir -p "$out/$rel_dir"
       out_file="$out/$rel_dir/${date}-${slug}.md"
     fi
+    # 同目录同名不同扩展名(如 foo.md 与 foo.html)会生成同一文章文件,属于配置错误,直接失败
+    if [ -e "$out_file" ]; then
+      echo "  ❌ 输出冲突: $rel 与另一同名笔记生成同一文件 $out_file" >&2
+      exit 1
+    fi
 
-    # 图片资源:优先拷贝该 md 所在目录的 assets(保持相对结构),引用改写为对应绝对路径;
+    # 资源目录:该文件所在目录的 assets 按相对结构拷贝(md 引用改写为对应绝对路径;
+    # HTML 原样部署,相对引用随目录结构保留即可解析);
     # 无本地 assets 时回退到仓库根 assets(循环外已平铺拷贝到 /assets/notes/<name>/)
     md_assets="$(dirname "$f")/assets"
     root_img_prefix="/assets/notes/$name"
@@ -202,48 +243,70 @@ while read -r name url; do
     else
       img_prefix="$root_img_prefix"
     fi
-    # 仓库根 assets 场景:md 里的引用写作 ../assets/ 或 ../../assets/(../ 个数=md 所在目录的层数),需按层数改写为根 assets 的部署绝对路径,
-    # 否则相对链接会残留到页面里解析失败
-    rel_sed=""
-    if [ "$rel_dir" != "." ]; then
-      depth=$(awk -F/ '{ print NF }' <<<"$rel_dir")
-      ups=""
-      i=0
-      while [ "$i" -lt "$depth" ]; do ups="${ups}\\.\\./"; i=$((i + 1)); done
-      rel_sed="s|](${ups}assets/|]($root_img_prefix/|g"
-    fi
+    if [ "$ext_lc" = "md" ]; then
+      # 仓库根 assets 场景:md 里的引用写作 ../assets/ 或 ../../assets/(../ 个数=md 所在目录的层数),需按层数改写为根 assets 的部署绝对路径,
+      # 否则相对链接会残留到页面里解析失败
+      rel_sed=""
+      if [ "$rel_dir" != "." ]; then
+        depth=$(awk -F/ '{ print NF }' <<<"$rel_dir")
+        ups=""
+        i=0
+        while [ "$i" -lt "$depth" ]; do ups="${ups}\\.\\./"; i=$((i + 1)); done
+        rel_sed="s|](${ups}assets/|]($root_img_prefix/|g"
+      fi
 
-    {
-      echo "---"
-      echo "title: \"$yaml_title\""
-      echo "date: $date"
-      [ -n "$src_column" ] && echo "column: $src_column"
-      [ -n "$src_order" ] && echo "order: $src_order"
-      [ -n "$src_viewable" ] && echo "viewable: $src_viewable"
-      # 笔记正文常含 Go/Vue 等 {{ }} 模板；Jekyll 默认当 Liquid 执行，
-      # 会把整站页面互相套进正文，构建时内存暴涨、专栏页大到打不开。
-      echo "render_with_liquid: false"
-      echo "---"
-      echo ""
-      # 去掉源文件 front matter,再改写相对图片引用
-      awk '
-        function flush_buf() {
-          for (i = 1; i <= n; i++) print buf[i]
-        }
-        NR==1 && $0 ~ /^---[[:space:]]*$/ { in_fm=1; n=0; buf[++n]=$0; next }
-        in_fm {
-          buf[++n]=$0
-          if ($0 ~ /^---[[:space:]]*$/) { in_fm=0; n=0; next }
-          next
-        }
-        { print }
-        END { if (in_fm) flush_buf() }
-      ' "$f" | sed "s|\](assets/|]($img_prefix/|g" | sed "$rel_sed"
-    } > "$out_file"
+      {
+        echo "---"
+        echo "title: \"$yaml_title\""
+        echo "date: $date"
+        [ -n "$src_column" ] && echo "column: $src_column"
+        [ -n "$src_order" ] && echo "order: $src_order"
+        [ -n "$src_viewable" ] && echo "viewable: $src_viewable"
+        # 笔记正文常含 Go/Vue 等 {{ }} 模板；Jekyll 默认当 Liquid 执行，
+        # 会把整站页面互相套进正文，构建时内存暴涨、专栏页大到打不开。
+        echo "render_with_liquid: false"
+        echo "---"
+        echo ""
+        # 去掉源文件 front matter,再改写相对图片引用
+        awk '
+          function flush_buf() {
+            for (i = 1; i <= n; i++) print buf[i]
+          }
+          NR==1 && $0 ~ /^---[[:space:]]*$/ { in_fm=1; n=0; buf[++n]=$0; next }
+          in_fm {
+            buf[++n]=$0
+            if ($0 ~ /^---[[:space:]]*$/) { in_fm=0; n=0; next }
+            next
+          }
+          { print }
+          END { if (in_fm) flush_buf() }
+        ' "$f" | sed "s|\](assets/|]($img_prefix/|g" | sed "$rel_sed"
+      } > "$out_file"
+    else
+      # HTML 文档:原样拷贝为静态资源(保留相对目录结构,文档内 assets/ 等相对引用可直接解析);
+      # 各列表入口通过 html_url 直接链接到该静态页,文档作为完整页面独立渲染;
+      # 文章 URL 本身生成跳转页(layout: html-redirect),兜底直接访问场景
+      mkdir -p "$ASSETS_BASE/$name/$rel_dir"
+      cp "$f" "$ASSETS_BASE/$name/$rel"
+      html_url="/assets/notes/$name/$rel"
+      {
+        echo "---"
+        echo "title: \"$yaml_title\""
+        echo "date: $date"
+        [ -n "$src_column" ] && echo "column: $src_column"
+        [ -n "$src_order" ] && echo "order: $src_order"
+        [ -n "$src_viewable" ] && echo "viewable: $src_viewable"
+        echo "layout: html-redirect"
+        echo "html_url: \"$html_url\""
+        echo "---"
+        echo ""
+        echo "这是一篇 HTML 文档笔记,[点击打开完整页面]($html_url)。"
+      } > "$out_file"
+    fi
 
     count=$((count + 1))
     echo "  ✓ $out_file (提交日期 $date)"
-  done < <(find "$src" -type f -name '*.md' ! -path '*/.git/*' -print0)
+  done < <(find "$src" -type f \( -iname '*.md' -o -iname '*.html' -o -iname '*.htm' \) ! -path '*/.git/*' -print0)
 
   echo "  ✅ $name: $count 篇"
   total=$((total + count))

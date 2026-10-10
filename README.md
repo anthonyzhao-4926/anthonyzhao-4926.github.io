@@ -106,7 +106,20 @@ my-notes     https://github.com/<你的名字>/<笔记仓库>.git
 
 ### 生成逻辑
 
-`scripts/pull-notes.sh` 会为每个仓库临时 `git clone`，遍历其中的 Markdown，按各文件在 Git 中的**提交日期**生成 front matter，输出到 `_posts/notes/<名称>/`；仓库内引用的图片同步到 `assets/notes/<名称>/`，并把相对引用改写为对应路径。全部输出物不入库（见 `.gitignore`）。
+`scripts/pull-notes.sh` 会为每个仓库临时 `git clone`，遍历其中的 Markdown 与 HTML 文档（`.md`/`.html`/`.htm`），按各文件在 Git 中的**提交日期**生成 front matter，输出到 `_posts/notes/<名称>/`；仓库内引用的图片同步到 `assets/notes/<名称>/`，并把相对引用改写为对应路径。全部输出物不入库（见 `.gitignore`）。
+
+**HTML 文档**（如交互式图表页、导出的完整报告）会原样拷贝到 `assets/notes/<名称>/` 下作为静态资源，各列表入口（主页/随笔/归档/专栏侧栏/搜索）直接链接到该页面，文档作为**完整独立页面**渲染，不套站点布局；文章 URL 本身是一个跳转页，兜底直接访问的场景。HTML 的元数据写在文件开头的注释块中（语法同 YAML front matter），`title` 缺省时回退取 `<title>` 标签，再回退文件名：
+
+```html
+<!--
+title: 事件生命周期
+column: dsh-plugin
+order: 5
+viewable: true
+-->
+<!DOCTYPE html>
+...
+```
 
 ### 本地手动拉取
 

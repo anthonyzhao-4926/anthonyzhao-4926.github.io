@@ -16,6 +16,11 @@
 {% if current_post == nil %}{% assign current_post = column_posts | first %}{% endif %}
 {% endif %}
 
+{% comment %}落地页首篇是 HTML 文档时无法 SPA 注入,直接整页跳转到原始文档{% endcomment %}
+{% if current_post and current_post.html_url %}
+<script>window.location.replace({{ current_post.html_url | relative_url | jsonify }});</script>
+{% endif %}
+
 {% assign column_page = site.data.columns | where: "id", column_id | first %}
 {% assign column_title = column_page.title | default: page.title | default: column_id %}
 {% if column_page %}{% assign column_url = '/columns/' | append: column_page.id | append: '/' | relative_url %}{% else
@@ -54,8 +59,10 @@
             {% assign pg = "" %}
             {% endif %}
             {% if pg == empty %}
+            {% comment %}HTML 文档文章直链原始页面(不带 data-post,SPA 不拦截),Markdown 文章走 SPA 注入{% endcomment %}
             <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {% endif %}><a
-                    href="{{ post.url }}" title="{{ post.title }}" data-post="{{ post.url }}" {% if
+                    href="{{ post.html_url | default: post.url | relative_url }}" title="{{ post.title }}" {% unless
+                    post.html_url %}data-post="{{ post.url }}" {% endunless %}{% if
                     post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title
                         }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a>
             </li>
@@ -96,7 +103,8 @@
                     {% endif %}
                     {% if pg == g %}
                     <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {%
-                        endif %}><a href="{{ post.url }}" title="{{ post.title }}" data-post="{{ post.url }}" {% if
+                        endif %}><a href="{{ post.html_url | default: post.url | relative_url }}" title="{{ post.title
+                            }}" {% unless post.html_url %}data-post="{{ post.url }}" {% endunless %}{% if
                             post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
                         endunless %}</a></li>
                     {% endif %}

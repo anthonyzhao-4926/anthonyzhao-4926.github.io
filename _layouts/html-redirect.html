@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!-- HTML 文档笔记的兜底跳转页:各列表入口已直接链接到原始 HTML(见 front matter 的 html_url),
+     本页仅覆盖直接访问文章 URL 的场景(搜索引擎、旧链接、search.json 兜底),立即重定向到原始文档 -->
+<html lang="{{ site.lang | default: 'zh-CN' }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }} · {{ site.title }}</title>
+    <link rel="canonical" href="{{ page.html_url | relative_url }}">
+    <meta http-equiv="refresh" content="0; url={{ page.html_url | relative_url }}">
+    <script>
+        window.location.replace({{ page.html_url | relative_url | jsonify }});
+    </script>
+</head>
+
+<body>
+    <p>正在打开 HTML 文档「{{ page.title }}」… <a href="{{ page.html_url | relative_url }}">若未自动跳转请点击这里</a></p>
+</body>
+
+</html>

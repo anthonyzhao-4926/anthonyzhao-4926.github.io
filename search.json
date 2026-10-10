@@ -5,7 +5,7 @@ layout: null
 {% for post in site.posts %}
 {
   "title": {{ post.title | jsonify }},
-  "url": {{ post.url | relative_url | jsonify }},
+  "url": {{ post.html_url | default: post.url | relative_url | jsonify }},
   "date": {{ post.date | date: "%Y-%m-%d" | jsonify }},
   "column": {{ post.column_title | default: post.column | default: "" | jsonify }},
   "viewable": {{ post.viewable | jsonify }},
