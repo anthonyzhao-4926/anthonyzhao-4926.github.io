@@ -64,7 +64,7 @@
                     href="{{ post.html_url | default: post.url | relative_url }}" title="{{ post.title }}" {% unless
                     post.html_url %}data-post="{{ post.url }}" {% endunless %}{% if
                     post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title
-                        }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a>
+                        }}</span>{% if post.html_url %} <span class="doc-badge">HTML</span>{% endif %}{% unless post.viewable %} <span class="draft-badge">草稿</span>{% endunless %}</a>
             </li>
             {% endif %}
             {% endfor %}
@@ -105,7 +105,7 @@
                     <li data-viewable="{{ post.viewable }}" {% if post.url==current_post.url %}class="is-current" {%
                         endif %}><a href="{{ post.html_url | default: post.url | relative_url }}" title="{{ post.title
                             }}" {% unless post.html_url %}data-post="{{ post.url }}" {% endunless %}{% if
-                            post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title }}</span>{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
+                            post.url==current_post.url %}class="current" {% endif %}><span class="col-item-name">{{ post.title }}</span>{% if post.html_url %} <span class="doc-badge">HTML</span>{% endif %}{% unless post.viewable %} <span class="draft-badge">草稿</span>{%
                         endunless %}</a></li>
                     {% endif %}
                     {% endfor %}

@@ -8,8 +8,9 @@
 #   exclude: 不发布的 md/html 文件/文件夹(相对仓库根目录),遍历时跳过。
 # 除 .md 外也支持 .html/.htm 笔记(自带样式/脚本的完整 HTML 文档):
 #   原样拷贝到 assets/notes/<仓库名>/ 下作为静态资源,各列表入口直接链接到该页面,
-#   文档作为完整页面独立渲染;元数据写在文件开头的 <!-- ... --> 注释块,
-#   语法同 YAML front matter(title/column/order/viewable),title 缺省时回退 <title> 标签。
+#   文档作为完整页面独立渲染;元数据写在文件头部的 <!-- ... --> 注释块(DOCTYPE 之后、
+#   <body> 之前均可),语法同 YAML front matter(title/column/order/viewable),
+#   title 缺省时回退 <title> 标签,column 缺省时按同目录/上级目录的 .md 笔记推断。
 # 由 GitHub Actions 构建前运行;本地手动运行时也会临时 clone。
 # ==========================================================
 set -euo pipefail
@@ -35,25 +36,67 @@ is_excluded() {
   return 1
 }
 
-# 从 HTML 文件开头的 <!-- ... --> 注释块提取元数据(用法: html_meta <key> <文件>);
-# 约定注释块独占首行开始,块内写法同 YAML front matter,如:
+# 从 HTML 文件头部的 <!-- ... --> 注释块提取元数据(用法: html_meta <key> <文件>);
+# 块内写法同 YAML front matter,如:
 #   <!--
 #   title: 事件生命周期
 #   column: dsh-plugin
 #   -->
+# 注释块可放在 DOCTYPE 之后、<body> 之前的任意位置(不必独占首行),也可以是
+# 单行写法 <!-- title: x -->;只看首个注释块,避免把正文里的注释当元数据。
 html_meta() {
   awk -v key="$1" '
-    NR==1 && $0 ~ /^[[:space:]]*<!--[[:space:]]*$/ { inm=1; next }
-    inm && $0 ~ /-->/ { exit }
-    inm && $0 ~ "^" key ":[[:space:]]*" {
-      line = $0
-      sub("^" key ":[[:space:]]*", "", line)
-      sub(/[[:space:]]+$/, "", line)
-      gsub(/^["'\'']+|["'\'']+$/, "", line)
-      print line
-      exit
+    function val(s, k) {
+      sub("^[[:space:]]*" k ":[[:space:]]*", "", s)
+      sub(/[[:space:]]+$/, "", s)
+      gsub(/^["'\'']+|["'\'']+$/, "", s)
+      return s
     }
+    NR > 60 { exit }
+    !inm && /<!--/ {
+      line = $0
+      sub(/^.*<!--/, "", line)
+      if (line ~ /-->/) {                       # 单行注释: <!-- title: x, column: y -->
+        sub(/-->.*$/, "", line)
+        n = split(line, parts, /,[[:space:]]*/)
+        for (i = 1; i <= n; i++) {
+          if (parts[i] ~ "^[[:space:]]*" key ":[[:space:]]*") { print val(parts[i], key); exit }
+        }
+        next
+      }
+      inm = 1
+      next
+    }
+    inm && /-->/ { exit }
+    inm && $0 ~ "^[[:space:]]*" key ":[[:space:]]*" { print val($0, key); exit }
   ' "$2"
+}
+
+# HTML 文档未声明 column 时,从同目录(再退到上级目录)的 .md 笔记推断所属专栏:
+# 参考卡片这类 HTML 文档常与同专栏的 md 放在一起,靠目录关系即可自动归档。
+# 用法: infer_column <起始目录> <仓库根目录>
+infer_column() {
+  local dir="$1" root="$2" depth=0 f col
+  while [ -n "$dir" ] && [ "$depth" -lt 2 ]; do
+    while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      col=$(awk '
+        NR==1 && $0 ~ /^---[[:space:]]*$/ { fm=1; next }
+        fm==1 && $0 ~ /^---[[:space:]]*$/ { exit }
+        fm==1 && $0 ~ /^column:[[:space:]]*/ {
+          sub(/^column:[[:space:]]*/, "")
+          gsub(/^["'\'']+|["'\'']+$/, "")
+          print
+          exit
+        }
+      ' "$f")
+      if [ -n "$col" ]; then printf '%s\n' "$col"; return 0; fi
+    done < <(find "$dir" -maxdepth 1 -type f -iname '*.md' 2>/dev/null | sort)
+    if [ "$dir" = "$root" ]; then break; fi
+    dir=$(dirname "$dir")
+    depth=$((depth + 1))
+  done
+  return 0
 }
 
 [ -f "$REPOS_FILE" ] || { echo "❌ 未找到仓库列表 $REPOS_FILE"; exit 1; }
@@ -76,9 +119,17 @@ while read -r name url; do
   echo "▶ 仓库: $name"
   echo "▶ 仓库url: $url"
 
-  # clone(已存在则静默跳过,避免覆盖本地改动)
+  # clone;已有 clone 则同步到远端最新
+  # (以前是「已存在就跳过」,导致本地预览一直用第一次 clone 的旧笔记——
+  #  新加的 HTML 文档/md 在本地怎么跑都不出现,必须手动删掉 _notes-src 才行)
   if [ ! -d "$src/.git" ]; then
     git clone "$url" "$src" 2>&1 | sed 's/^/    /'
+  else
+    echo "  ↻ 更新已有 clone 到远端最新"
+    git -C "$src" fetch --quiet origin 2>&1 | sed 's/^/    /' || true
+    remote_head=$(git -C "$src" symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null || echo origin/main)
+    git -C "$src" reset --hard --quiet "$remote_head" 2>&1 | sed 's/^/    /' \
+      || git -C "$src" reset --hard --quiet origin/main 2>&1 | sed 's/^/    /' || true
   fi
   [ -d "$src" ] || { echo "  ⚠️ clone 失败,跳过"; continue; }
 
@@ -206,12 +257,24 @@ while read -r name url; do
         }
       ' "$f")
     else
-      # HTML 文档:元数据取文件开头 <!-- ... --> 注释块(见 html_meta);title 缺省回退 <title> 标签,再回退文件名
+      # HTML 文档:元数据取文件头部 <!-- ... --> 注释块(见 html_meta);
+      # title 缺省回退 <title> 标签,再回退文件名;
+      # column 缺省时按同目录/上级目录的 .md 笔记推断(见 infer_column),
+      # 这样「整理好的一份 HTML 参考材料」扔进专栏目录就能自动归档,不必手写元数据
       src_title=$(html_meta title "$f")
       [ -z "$src_title" ] && src_title=$(sed -n 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/p' "$f" | head -1)
       src_column=$(html_meta column "$f")
       src_order=$(html_meta order "$f")
       src_viewable=$(html_meta viewable "$f")
+      if [ -z "$src_column" ]; then
+        src_column=$(infer_column "$(dirname "$f")" "$src")
+        if [ -n "$src_column" ]; then
+          echo "  · $rel 未声明 column,按同目录笔记推断为 $src_column"
+        fi
+      fi
+      if [ -z "$src_title$src_column" ]; then
+        echo "  ℹ $rel 没有元数据注释块:标题回退 <title>,专栏按目录推断;要指定 order/viewable 可在文件头部加 <!-- ... -->"
+      fi
     fi
     title="${src_title:-$slug}"
     yaml_title=${title//\\/\\\\}
@@ -300,7 +363,9 @@ while read -r name url; do
         echo "html_url: \"$html_url\""
         echo "---"
         echo ""
-        echo "这是一篇 HTML 文档笔记,[点击打开完整页面]($html_url)。"
+        # 正文只作兜底说明与列表摘要:跳转与「打开完整页面」链接由 html-redirect 布局渲染,
+        # 这里不写裸空格 URL,免得摘要里出现 /assets/.../%20 这类噪声
+        echo "这是一份独立的 HTML 参考文档，本页会自动打开它；若未跳转，请用页面上的链接打开。"
       } > "$out_file"
     fi
 

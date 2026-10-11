@@ -316,6 +316,21 @@ body.is-home .container {
     vertical-align: 1px;
 }
 
+/* HTML 参考文档标记:和「草稿」同一套位置语言,提示点开是独立整页文档 */
+.doc-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 5px;
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    color: var(--muted);
+    vertical-align: 2px;
+    white-space: nowrap;
+}
+
 html:not([data-show-drafts]) [data-viewable="false"]:not(.is-current) {
     display: none;
 }

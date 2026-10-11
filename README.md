@@ -108,18 +108,37 @@ my-notes     https://github.com/<你的名字>/<笔记仓库>.git
 
 `scripts/pull-notes.sh` 会为每个仓库临时 `git clone`，遍历其中的 Markdown 与 HTML 文档（`.md`/`.html`/`.htm`），按各文件在 Git 中的**提交日期**生成 front matter，输出到 `_posts/notes/<名称>/`；仓库内引用的图片同步到 `assets/notes/<名称>/`，并把相对引用改写为对应路径。全部输出物不入库（见 `.gitignore`）。
 
-**HTML 文档**（如交互式图表页、导出的完整报告）会原样拷贝到 `assets/notes/<名称>/` 下作为静态资源，各列表入口（主页/随笔/归档/专栏侧栏/搜索）直接链接到该页面，文档作为**完整独立页面**渲染，不套站点布局；文章 URL 本身是一个跳转页，兜底直接访问的场景。HTML 的元数据写在文件开头的注释块中（语法同 YAML front matter），`title` 缺省时回退取 `<title>` 标签，再回退文件名：
+**HTML 文档**（如交互式图表页、导出的完整报告）会原样拷贝到 `assets/notes/<名称>/` 下作为静态资源，各列表入口（主页/随笔/归档/专栏侧栏/搜索）直接链接到该页面，文档作为**完整独立页面**渲染，不套站点布局（自带样式/脚本原样保留，标题旁会带一个 `HTML` 小标）；文章 URL 本身是一个带站点外壳的跳转页，兜底直接访问的场景。
+
+HTML 的元数据写在文件头部的注释块中（语法同 YAML front matter，可放在 `<!DOCTYPE html>` 之后、`<body>` 之前，也可以写成单行 `<!-- title: x, column: y -->`）：
 
 ```html
+<!DOCTYPE html>
 <!--
 title: 事件生命周期
 column: dsh-plugin
 order: 5
 viewable: true
 -->
-<!DOCTYPE html>
+<html lang="zh-CN">
 ...
 ```
+
+缺省与推断规则：
+
+| 字段 | 缺省行为 |
+|---|---|
+| `title` | 回退取 `<title>` 标签，再回退文件名 |
+| `column` | 按同目录（再退到上级目录）的 `.md` 笔记推断——把 HTML 丢进专栏的 `参考/` 目录就会自动归入该专栏 |
+| `order` / `viewable` | 不写则与 `.md` 笔记一致（无排序、默认可见） |
+
+**正文里链接 HTML 文档**直接写相对路径即可，构建时会改写成部署地址，不要手写成 `/assets/notes/...` 或裸文件名：
+
+```markdown
+事件清单见 [事件生命周期](参考/事件生命周期.html)。
+```
+
+> `_plugins/wiki_links.rb` 会把正文中的相对 `.md` 与 `.html`/`.htm` 链接统一改写为部署后的真实 URL（`.md` → 文章页，HTML → 静态资源页）并做百分号编码。相对链接如果直接留在页面里，浏览器会按文章 URL（`/posts/<slug>/`）解析，点开必然 404。
 
 ### 本地手动拉取
 

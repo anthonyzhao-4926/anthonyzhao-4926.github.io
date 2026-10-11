@@ -1,21 +1,58 @@
 <!DOCTYPE html>
 <!-- HTML 文档笔记的兜底跳转页:各列表入口已直接链接到原始 HTML(见 front matter 的 html_url),
-     本页仅覆盖直接访问文章 URL 的场景(搜索引擎、旧链接、search.json 兜底),立即重定向到原始文档 -->
+     本页仅覆盖直接访问文章 URL 的场景(搜索引擎、旧链接、手输地址),立即重定向到原始文档。
+     文档本身作为独立整页渲染(自带样式/脚本,不套站点布局),这里只把「外壳」做成本站样式,
+     免得跳转失败时看到一张裸页面。 -->
 <html lang="{{ site.lang | default: 'zh-CN' }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ page.title }} · {{ site.title }}</title>
+    {% if page.html_url %}
     <link rel="canonical" href="{{ page.html_url | relative_url }}">
     <meta http-equiv="refresh" content="0; url={{ page.html_url | relative_url }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
     <script>
-        window.location.replace({{ page.html_url | relative_url | jsonify }});
+        // 深浅色初始化(同 _includes/head.html,避免闪白)
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                document.documentElement.setAttribute('data-theme', saved || 'light');
+            } catch (e) { /* localStorage 不可用时忽略 */ }
+        })();
+        {% if page.html_url %}window.location.replace({{ page.html_url | relative_url | jsonify }});{% endif %}
     </script>
 </head>
 
 <body>
-    <p>正在打开 HTML 文档「{{ page.title }}」… <a href="{{ page.html_url | relative_url }}">若未自动跳转请点击这里</a></p>
+    {% include header.html %}
+
+    <main class="container main-content">
+        <div class="post-shell">
+            <article class="post toc-source">
+                <header class="post-header">
+                    <p class="post-flag mono"><span class="flag-dot"></span>HTML 文档</p>
+                    <h1 class="post-title">{{ page.title }}</h1>
+                </header>
+                <div class="post-content">
+                    {% if page.html_url %}
+                    <p>正在打开这份 HTML 参考文档…</p>
+                    <p><a href="{{ page.html_url | relative_url }}">若未自动跳转，点这里打开完整页面 →</a></p>
+                    {% else %}
+                    <p>这篇 HTML 文档笔记缺少 <code>html_url</code> 字段（应由 <code>scripts/pull-notes.sh</code> 生成），无法跳转。</p>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p class="mono">© {{ site.time | date: "%Y" }} {{ site.title }}<span class="dot"> · </span>记录与分享</p>
+    </footer>
+
+    <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
 </body>
 
 </html>
